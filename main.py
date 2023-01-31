@@ -2,15 +2,16 @@
 
 import sys
 import os 
-
+from contextlib import redirect_stdout
 urls = set() # list of urls
 
 
 # install function
 # TODO: install the requirements TANVI change here
 def install():
-    os.system("pip install -r requirements.txt")
-    sys.stdout = open("/dev/null", "w")
+    with open("/dev/null", "w") as f, redirect_stdout(f):
+     os.system("pip install -r requirements.txt")
+   # sys.stdout = open("/dev/null", "w")
 
 def main(args, *kwargs):
 
