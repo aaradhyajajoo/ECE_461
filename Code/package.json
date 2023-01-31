@@ -1,0 +1,17 @@
+{
+  "name": "code",
+  "version": "1.0.0",
+  "main": "f.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@types/node": "^18.11.18",
+    "fill-keys": "^1.0.2",
+    "module-not-found-error": "^1.0.0",
+    "resolve": "~1.1.7"
+  },
+  "author": "Eshaan",
+  "license": "ISC",
+  "description": ""
+}
