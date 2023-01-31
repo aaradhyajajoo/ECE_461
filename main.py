@@ -5,17 +5,24 @@ import os
 
 urls = set() # list of urls
 
-def main(*args, **kwargs):
+
+# install function
+# TODO: install the requirements TANVI change here
+def install():
+    os.system("pip install -r requirements.txt")
+    sys.stdout = open("/dev/null", "w")
+
+def main(args, *kwargs):
 
     # no arguments provided
     if (len(args) == 0):
         sys.exit("No arguments provided")
     
     # check if the first argument is install or test
-    if (args[0] == "install"):
-        # install function to be called here
-        print("install")
-    elif (args[0] == "test"):
+    if (args[0].strip() == "install"):
+        install()
+
+    elif (args[0].strip() == "test"):
         # test function to be called here
         print("test")
     
