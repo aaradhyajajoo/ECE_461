@@ -3,10 +3,12 @@
 echo "Running..."
 if [ $1 = "install" ]; then
   echo "Installing dependencies..."
+  cd src
+  echo "In src folder"
   npm install
-  tsc f.ts 
-  node f.js
+  tsc index.ts && node index.js
   echo "dependencies installed"
+  
 else
-  echo "Invalid command."
+  echo "Invalid command"
 fi
