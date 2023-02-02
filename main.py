@@ -3,6 +3,8 @@
 import sys
 import os 
 import contextlib
+import requests
+
 urls = set() # list of urls
 
 
@@ -17,8 +19,6 @@ def install():
     # sys.stdout = open("/dev/null", "w")
 
 def main(args, *kwargs):
-
-    install()
 
     # no arguments provided
     if (len(args) == 0):
@@ -35,7 +35,23 @@ def main(args, *kwargs):
     # default test: check if the files exist
     else:
         check_files_exists(args, *kwargs)
+        graph_api_call()
+    
+def graph_api_call():
+    # using the url set and the github api, get the data for the urls 
+    # the get request format is https://api.github.com/repos/<owner>/<repo>
+    # the owner is the username and the repo is the name of the repo
+    # the response is a json file with the data
+    for url in urls:
+        if url.split("/")[2] == "github.com":
+            owner = url.split("/")[3]
+            repo = url.split("/")[4]
+            request_url = "https://api.github.com/repos/{}/{}".format(owner, repo)
+            data = requests.get(request_url)
 
+            # just so the information is easier to see
+            if repo == "nodist":
+                print(data.json())
 
 # read the file
 def read_file(file):
@@ -66,4 +82,4 @@ def check_files_exists(args):
     
 if __name__ == "__main__":
     main(sys.argv[1:])
-    print(urls)
+    # print(urls)
