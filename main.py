@@ -52,6 +52,8 @@ def graph_api_call():
             # just so the information is easier to see
             if repo == "nodist":
                 print(data.json())
+        elif url.split("/")[2] == "npmjs.com":
+        # use registry.npmjs.org to get the data
 
 # read the file
 def read_file(file):
