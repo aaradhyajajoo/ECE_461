@@ -3,16 +3,23 @@
 import sys
 import os 
 from contextlib import redirect_stdout
+import subprocess
 urls = set() # list of urls
 
 
 # install function
 # TODO: install the requirements TANVI change here
-def install():
-    with open("/dev/null", "w") as f, redirect_stdout(f):
-     os.system("pip install -r requirements.txt")
-   # sys.stdout = open("/dev/null", "w")
+def install(requirement_file):
+       with open(requirement_file) as f:
+        dependencies = f.readlines()
+        dependencies = [dep.strip() for dep in dependencies]
 
+       installed_count = 0
+       for dep in dependencies:
+        result = subprocess.run(["pip", "install", dep, "--quiet"])
+        if result.returncode == 0:
+            installed_count += 1
+       return installed_count
 def main(args, *kwargs):
 
     # no arguments provided
@@ -61,4 +68,8 @@ def check_files_exists(args, *kwargs):
     
 if __name__ == "__main__":
     main(sys.argv[1:])
+    requirement_file = "requirements.txt"
+    installed_count = install(requirement_file)
+    print(f"{installed_count} dependencies installed.")
     print(urls)
+    install()
