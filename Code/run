@@ -8,7 +8,10 @@ if [ "$1" = "install" ]; then
   npm install
   tsc index.ts && node index.js
   echo "dependencies installed"
-  
+  exit 0
 else
-  echo "Invalid command"
+  python ../main.py "$@"
+  exit 0
 fi
+
+exit 0

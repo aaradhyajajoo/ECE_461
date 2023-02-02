@@ -10,7 +10,7 @@ urls = set() # list of urls
 # TODO: install the requirements TANVI change here
 def install():
     with open("/dev/null", "w") as f, redirect_stdout(f):
-     os.system("pip install -r requirements.txt")
+        os.system("pip install -r requirements.txt")
    # sys.stdout = open("/dev/null", "w")
 
 def main(args, *kwargs):
@@ -29,11 +29,11 @@ def main(args, *kwargs):
     
     # default test: check if the files exist
     else:
-        check_files_exists(*args, **kwargs)
+        check_files_exists(args, *kwargs)
 
 
 # read the file
-def read_file(file, *kwargs):
+def read_file(file):
 
     # check if the file is readable
     if not (os.access(file, os.R_OK)):
@@ -45,7 +45,7 @@ def read_file(file, *kwargs):
     
 
 # check if the files with the input path exist
-def check_files_exists(args, *kwargs):
+def check_files_exists(args):
 
     # no files provided
     if (len(args) == 0):
