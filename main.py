@@ -2,18 +2,23 @@
 
 import sys
 import os 
-from contextlib import redirect_stdout
+import contextlib
 urls = set() # list of urls
 
 
 # install function
 # TODO: install the requirements TANVI change here
 def install():
-    with open("/dev/null", "w") as f, redirect_stdout(f):
-        os.system("pip install -r requirements.txt")
-   # sys.stdout = open("/dev/null", "w")
+    # with open("/dev/null", "w") as f, redirect_stdout(f):
+        # os.system("pip install -r requirements.txt")
+        os.system("npm install")
+        os.system("tsc src/index.ts")
+        os.system("node src/index.js")
+    # sys.stdout = open("/dev/null", "w")
 
 def main(args, *kwargs):
+
+    install()
 
     # no arguments provided
     if (len(args) == 0):
