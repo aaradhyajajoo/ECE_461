@@ -53,7 +53,13 @@ def graph_api_call():
             if repo == "nodist":
                 print(data.json())
         elif url.split("/")[2] == "npmjs.com":
+            response = requests.get(url)
+            if response.status_code == 200:
+              data = response.json
+
+
         # use registry.npmjs.org to get the data
+
 
 # read the file
 def read_file(file):
@@ -84,4 +90,5 @@ def check_files_exists(args):
     
 if __name__ == "__main__":
     main(sys.argv[1:])
+    
     # print(urls)
