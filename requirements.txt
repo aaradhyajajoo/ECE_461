@@ -1,2 +1,6 @@
 numpy
+<<<<<<< HEAD
 pandas
+=======
+requests
+>>>>>>> 07e8141bef7e25588d59c4318ef062ede9ff0f6a

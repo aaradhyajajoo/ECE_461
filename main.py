@@ -2,24 +2,22 @@
 
 import sys
 import os 
-from contextlib import redirect_stdout
-import subprocess
+import contextlib
+import requests
+
 urls = set() # list of urls
 
 
 # install function
 # TODO: install the requirements TANVI change here
-def install(requirement_file):
-       with open(requirement_file) as f:
-        dependencies = f.readlines()
-        dependencies = [dep.strip() for dep in dependencies]
+def install():
+    # with open("/dev/null", "w") as f, redirect_stdout(f):
+        # os.system("pip install -r requirements.txt")
+        os.system("npm install")
+        os.system("tsc src/index.ts")
+        os.system("node src/index.js")
+    # sys.stdout = open("/dev/null", "w")
 
-       installed_count = 0
-       for dep in dependencies:
-        result = subprocess.run(["pip", "install", dep, "--quiet"])
-        if result.returncode == 0:
-            installed_count += 1
-       return installed_count
 def main(args, *kwargs):
 
     # no arguments provided
@@ -36,11 +34,29 @@ def main(args, *kwargs):
     
     # default test: check if the files exist
     else:
-        check_files_exists(*args, **kwargs)
+        check_files_exists(args, *kwargs)
+        graph_api_call()
+    
+def graph_api_call():
+    # using the url set and the github api, get the data for the urls 
+    # the get request format is https://api.github.com/repos/<owner>/<repo>
+    # the owner is the username and the repo is the name of the repo
+    # the response is a json file with the data
+    for url in urls:
+        if url.split("/")[2] == "github.com":
+            owner = url.split("/")[3]
+            repo = url.split("/")[4]
+            request_url = "https://api.github.com/repos/{}/{}".format(owner, repo)
+            data = requests.get(request_url)
 
+            # just so the information is easier to see
+            if repo == "nodist":
+                print(data.json())
+        elif url.split("/")[2] == "npmjs.com":
+        # use registry.npmjs.org to get the data
 
 # read the file
-def read_file(file, *kwargs):
+def read_file(file):
 
     # check if the file is readable
     if not (os.access(file, os.R_OK)):
@@ -52,7 +68,7 @@ def read_file(file, *kwargs):
     
 
 # check if the files with the input path exist
-def check_files_exists(args, *kwargs):
+def check_files_exists(args):
 
     # no files provided
     if (len(args) == 0):
@@ -68,8 +84,4 @@ def check_files_exists(args, *kwargs):
     
 if __name__ == "__main__":
     main(sys.argv[1:])
-    requirement_file = "requirements.txt"
-    installed_count = install(requirement_file)
-    print(f"{installed_count} dependencies installed.")
-    print(urls)
-    install()
+    # print(urls)
