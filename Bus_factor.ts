@@ -71,5 +71,3 @@ async function calculateBusFactor(owner: string, repo: string) {
     return busFactor;
   }
   
-  (async () => {
-    const busFactor
