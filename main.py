@@ -10,12 +10,13 @@ urls = set() # list of urls
 
 # install function
 # TODO: install the requirements TANVI change here
+
 def install():
     # with open("/dev/null", "w") as f, redirect_stdout(f):
         # os.system("pip install -r requirements.txt")
         os.system("npm install")
-        os.system("tsc src/index.ts")
-        os.system("node src/index.js")
+        os.system("ts-node src/install.ts")
+        os.system("node src/install.js")
     # sys.stdout = open("/dev/null", "w")
 
 def main(args, *kwargs):
@@ -34,8 +35,11 @@ def main(args, *kwargs):
     
     # default test: check if the files exist
     else:
+        
         check_files_exists(args, *kwargs)
-        graph_api_call()
+        os.system(f"ts-node src/graph_api_call.ts {args[0]}")
+        # os.system(f"node src/graph_api_call.js {args[0]}")
+        # graph_api_call()
     
 def graph_api_call():
     # using the url set and the github api, get the data for the urls 
@@ -45,6 +49,7 @@ def graph_api_call():
     for url in urls:
         if url.split("/")[2] == "github.com":
             owner = url.split("/")[3]
+            print(owner)
             repo = url.split("/")[4]
             request_url = "https://api.github.com/repos/{}/{}".format(owner, repo)
             data = requests.get(request_url)
@@ -53,11 +58,10 @@ def graph_api_call():
             if repo == "nodist":
                 print(data.json())
         elif url.split("/")[2] == "npmjs.com":
+            pass
         # use registry.npmjs.org to get the data
 
-# read the file
 def read_file(file):
-
     # check if the file is readable
     if not (os.access(file, os.R_OK)):
         sys.exit("File {} is not readable".format(file))
