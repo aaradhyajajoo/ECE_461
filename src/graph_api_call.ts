@@ -71,11 +71,39 @@ function main() {
       var request_url = "https://api.github.com/repos/" + owner + "/" + repo
       getData(request_url, 'github api');
     }
+
+    // query {
+    // repository(owner: "facebook", name: "react") {
+    //   name
+    //   description
+    //   url
+    //   createdAt
+    //   updatedAt
+    //   pushedAt
+    //   homepageUrl
+    //   licenseInfo {
+    //     name
+    //     }
+    //   }
+    // }
+
+
+
+
+
+
+
+
     else if (url.includes('npm')) {
       var request_url = "https://api.npms.io/v2/" + owner + "/" + repo
       getData(request_url, 'npmjs api');
     }
   });
+}
+
+// write a graphql query to get the data from the github api
+function graphql_query() {
+
 }
 
 main(); // Main 

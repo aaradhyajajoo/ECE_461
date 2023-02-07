@@ -1,5 +1,4 @@
 # !/bin/sh
-
 echo "Running..."
 # if [ "$1" = "install" ]; then
 #   echo "Installing dependencies..."
@@ -14,6 +13,5 @@ echo "Running..."
 #   python main.py "$@"
 #   exit 0
 # fi
-
 python3 main.py "$@"
 exit 0

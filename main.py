@@ -32,34 +32,69 @@ def main(args, *kwargs):
     elif (args[0].strip() == "test"):
         # test function to be called here
         print("test")
-    
     # default test: check if the files exist
     else:
-        
         check_files_exists(args, *kwargs)
-        os.system(f"ts-node src/graph_api_call.ts {args[0]}")
+        # os.system(f"ts-node src/graph_api_call.ts {args[0]}")
         # os.system(f"node src/graph_api_call.js {args[0]}")
-        # graph_api_call()
+        graph_api_call()
     
 def graph_api_call():
-    # using the url set and the github api, get the data for the urls 
-    # the get request format is https://api.github.com/repos/<owner>/<repo>
-    # the owner is the username and the repo is the name of the repo
-    # the response is a json file with the data
+    # the query to get the data
+    query = """ 
+    query {
+          repository(owner: "owner1", name: "repo1") {
+            name
+            url
+            description
+            watchers {
+            totalCount
+            }
+            forks {
+                totalCount
+            }
+            issues {
+                totalCount
+            }
+            stargazerCount
+            }
+            licenses {
+                name
+            }
+            }
+    """
+
+    prev_owner = "owner1"
+    prev_repo = "repo1"
+    username = "aaradhyajajoo"
+    token = os.getenv('GITHUB_TOKEN')
+
     for url in urls:
         if url.split("/")[2] == "github.com":
-            owner = url.split("/")[3]
-            print(owner)
-            repo = url.split("/")[4]
-            request_url = "https://api.github.com/repos/{}/{}".format(owner, repo)
-            data = requests.get(request_url)
 
-            # just so the information is easier to see
-            if repo == "nodist":
+            # get the repository owner and name
+            owner = url.split("/")[3]
+            repo = url.split("/")[4]
+
+            # the url to make the request to
+            request_url = "https://api.github.com/graphql"
+            
+            # replace the owner and repo in the query
+            query = query.replace(prev_owner, owner, 1)
+            query = query.replace(prev_repo, repo, 1)
+
+            prev_owner = owner
+            prev_repo = repo
+
+            # username = "aaradhyajajoo"
+            # token = "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"
+
+            # make the request
+            data = requests.post(request_url, json={"query": query}, auth=(username, token))
+
+            # print the response
+            if data.status_code == 200:
                 print(data.json())
-        elif url.split("/")[2] == "npmjs.com":
-            pass
-        # use registry.npmjs.org to get the data
 
 def read_file(file):
     # check if the file is readable
@@ -80,12 +115,12 @@ def check_files_exists(args):
 
     # check if the files exist
     for arg in args:
+        arg = arg.strip()
         if not os.path.exists(arg):
-            sys.exit("File {} does not exist".format(arg))
+            sys.exit("File does not exist")
         else:
             read_file(arg)
     
     
 if __name__ == "__main__":
     main(sys.argv[1:])
-    # print(urls)
