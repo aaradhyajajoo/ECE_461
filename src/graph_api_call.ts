@@ -36,39 +36,34 @@ async function getData(requestUrl: string, api: string) {
 }
 //add bus_factor function
 
-async function bus_factor_calc(requestUrl: string) {
-  try {
-    const response = await axios.get(requestUrl, {
-      headers: {
-        Accept: 'application/vnd.github+json; application/vnd.github.hellcat-preview+json; application/vnd.github.squirrel-girl-preview+json',
-        'Authorization': `Token ${GITHUB_TOKEN}`
-      }
-    });
+async function calculateBusFactor(repoOwner: string, repoName: string) {
+  const response = await axios.get(`https://api.github.com/repos/${repoOwner}/${repoName}/contributors`);
+  const contributors = response.data;
 
-    const contributors = response.data.contributors_count;
-    let commits = 0;
+  let totalCommits = 0;
+  contributors.forEach((contributor) => {
+    totalCommits += contributor.contributions;
+  });
 
-    for (let i = 0; i < contributors; i++) {
-      const contributor = response.data[i];
-      commits += contributor.contributions;
-    }
+  const averageCommitsPerContributor = totalCommits / contributors.length;
+  const busFactor = 1 - (1 / (contributors.length + 1)) * averageCommitsPerContributor / totalCommits;
 
-    const bus_factor = 1 - (1 / (contributors * (contributors - 1))) * commits;
-    return bus_factor;
+  return busFactor;
+}
 
 
-function calculate_scores(srting :URL) {
+function calculate_scores(repoOwner: string, repoName: string) {
 
   // 2 from GitHub API
   // 1 from GraphQL
   // 1 from REST
   // 1 from source code
 
-  var license_compatibility: number = 0; // GitHub API
-  const bus_factor = bus_factor_calc(URL)
+  var license_compatibility: number = 0; // GitHub APIcalculateBusFactor(repoOwner: string, repoName: string) {
+  var bus_factor = calculateBusFactor(repoOwner, repoName)
   var ramp_upTime = 0; // Eshaan 
   var responsiveness = 0; // Aaradhya
-  var correctness = 0; //  Ilan
+  var correctness = 0; //  Ilan // using rest api here
 
   var net_score = (0.4 * responsiveness + 0.1 * bus_factor + 0.2 * license_compatibility + 0.1 * ramp_upTime + 0.2 * correctness)/ 5
 }
@@ -123,6 +118,7 @@ function main() {
       getData(request_url, 'npmjs api');
     }
   });
+  calculate_scores(owner,repo);
 }
 
 // write a graphql query to get the data from the github api
@@ -131,4 +127,4 @@ function graphql_query() {
 }
 
 main(); // Main 
-calculate_scores(); // Subscores and Net Score
+ // Subscores and Net Score
