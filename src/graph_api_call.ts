@@ -36,23 +36,24 @@ async function getData(requestUrl: string, api: string) {
 }
 //add bus_factor function
 
-async function calculateBusFactor(repoOwner: string, repoName: string) {
-  const response = await axios.get(`https://api.github.com/repos/${repoOwner}/${repoName}/contributors`);
+function getBusFactor(response: any): number {
   const contributors = response.data;
+  const numContributors = contributors.length;
 
   let totalCommits = 0;
-  contributors.forEach((contributor) => {
+  for (const contributor of contributors) {
     totalCommits += contributor.contributions;
-  });
+  }
 
-  const averageCommitsPerContributor = totalCommits / contributors.length;
-  const busFactor = 1 - (1 / (contributors.length + 1)) * averageCommitsPerContributor / totalCommits;
-
-  return busFactor;
+  return (
+    numContributors > 0 && totalCommits > 0
+      ? 1 / (numContributors * totalCommits)
+      : 0
+  );
 }
 
 
-function calculate_scores(repoOwner: string, repoName: string) {
+function calculate_scores(response) {
 
   // 2 from GitHub API
   // 1 from GraphQL
@@ -60,11 +61,11 @@ function calculate_scores(repoOwner: string, repoName: string) {
   // 1 from source code
 
   var license_compatibility: number = 0; // GitHub APIcalculateBusFactor(repoOwner: string, repoName: string) {
-  var bus_factor = calculateBusFactor(repoOwner, repoName)
+  const bus_factor = getBusFactor(response)
   var ramp_upTime = 0; // Eshaan 
   var responsiveness = 0; // Aaradhya
   var correctness = 0; //  Ilan // using rest api here
-
+  
   var net_score = (0.4 * responsiveness + 0.1 * bus_factor + 0.2 * license_compatibility + 0.1 * ramp_upTime + 0.2 * correctness)/ 5
 }
 
@@ -118,7 +119,7 @@ function main() {
       getData(request_url, 'npmjs api');
     }
   });
-  calculate_scores(owner,repo);
+  calculate_scores(response)
 }
 
 // write a graphql query to get the data from the github api
