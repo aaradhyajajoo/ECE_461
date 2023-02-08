@@ -72,28 +72,7 @@ function main() {
       getData(request_url, 'github api');
     }
 
-    // query {
-    // repository(owner: "facebook", name: "react") {
-    //   name
-    //   description
-    //   url
-    //   createdAt
-    //   updatedAt
-    //   pushedAt
-    //   homepageUrl
-    //   licenseInfo {
-    //     name
-    //     }
-    //   }
-    // }
-
-
-
-
-
-
-
-
+    // NPM URLs
     else if (url.includes('npm')) {
       var request_url = "https://api.npms.io/v2/" + owner + "/" + repo
       getData(request_url, 'npmjs api');

@@ -2,14 +2,12 @@
 
 import sys
 import os 
-import contextlib
 import requests
 
 urls = set() # list of urls
 
 
 # install function
-# TODO: install the requirements TANVI change here
 
 def install():
     # with open("/dev/null", "w") as f, redirect_stdout(f):
@@ -85,9 +83,6 @@ def graph_api_call():
 
             prev_owner = owner
             prev_repo = repo
-
-            # username = "aaradhyajajoo"
-            # token = "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"
 
             # make the request
             data = requests.post(request_url, json={"query": query}, auth=(username, token))
