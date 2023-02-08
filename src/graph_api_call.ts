@@ -7,33 +7,67 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 // Function to request APIs
 async function getData(requestUrl: string, api: string) {
-  // 'Authorization': 'Token ${GITHUB_TOKEN}' -> Add to 'headers'
-  try {
-    const response = await axios.get(requestUrl, {
-      headers: {
-        Accept: 'application/vnd.github+json; application/vnd.github.hellcat-preview+json; application/vnd.github.squirrel-girl-preview+json'
-      }
-    }); // include 'header' when GITHUB token working
-    console.log('Getting data from url... - ', requestUrl)
+    // 'Authorization': 'Token ${GITHUB_TOKEN}' -> Add to 'headers'
 
     // Flushing data to an output file in root folder
     if (api == 'github api') {
-      const Console = new console.Console(fs.createWriteStream('./GitHub_API_data_repsonse.txt'));
-      Console.log(response.data);
+      
       // calculating sub scores - directly use response.data to get sub scores
+      const query = `
+      query {
+        repository(owner: "owner1", name: "repo1") {
+          name
+          url
+          description
+          watchers {
+          totalCount
+          }
+          forks {
+              totalCount
+          }
+          issues {
+              totalCount
+          }
+          stargazerCount
+          }
+          licenses {
+              name
+          }
+          }
+        `;
+      var user = 'aaradhyajajoo'
+      var github_token = process.env.GITHUB_TOKEN
+      console.log("Token instantiated = " + github_token)
+
+      // add auth token to headers
+      try {
+        await axios({
+          url: requestUrl,
+          method: 'post',
+          headers: {
+            Authorization: `Bearer ${github_token}`
+          },
+          data: {
+            query: query
+          }
+        }).then((response) => {
+          const Console = new console.Console(fs.createWriteStream('./GitHub_API_data_repsonse.txt'));
+          Console.log(response.data);
+        });
+    } catch (error) {
+      console.error("There was a problem with the fetch operation with ", requestUrl);
+      // console.log('Token instantiated = ' + process.env.GITHUB_TOKEN)
+      // console.log(error)
+      // Bad credential error message - GITHUB TOKEN
     }
-    else if (api == 'npmjs api') {
+  }
+    var response = await axios.get(requestUrl);
+    if (api == 'npmjs api') {
       const Console = new console.Console(fs.createWriteStream('./NPMJS_API_data_repsonse.txt'));
       Console.log(response.data);
     }
 
     console.log('Data type: ', typeof (response.data))
-  } catch (error) {
-    console.error("There was a problem with the fetch operation with ", requestUrl);
-    // console.log('Token instantiated = ' + process.env.GITHUB_TOKEN)
-    // console.log(error)
-    // Bad credential error message - GITHUB TOKEN
-  }
 }
 
 function calculate_scores() {
@@ -59,6 +93,9 @@ function main() {
   console.log('.txt file is: ' + args[2])
 
   var filename = args[2]
+  // replace carriage return with empty string
+  filename = filename.replace(/\r/g, '');
+
   const string_urls = fs.readFileSync(filename, 'utf-8');
   const arr_urls = string_urls.split(/\r?\n/);
 
@@ -68,7 +105,7 @@ function main() {
 
     // GitHub URLs 
     if (url.includes('github')) {
-      var request_url = "https://api.github.com/repos/" + owner + "/" + repo
+      var request_url = "https://api.github.com/graphql"
       getData(request_url, 'github api');
     }
 

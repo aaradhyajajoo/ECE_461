@@ -33,9 +33,9 @@ def main(args, *kwargs):
     # default test: check if the files exist
     else:
         check_files_exists(args, *kwargs)
-        # os.system(f"ts-node src/graph_api_call.ts {args[0]}")
-        # os.system(f"node src/graph_api_call.js {args[0]}")
-        graph_api_call()
+        os.system(f"ts-node src/graph_api_call.ts {args[0]}")
+        os.system(f"node src/graph_api_call.js {args[0]}")
+        # graph_api_call()
     
 def graph_api_call():
     # the query to get the data
