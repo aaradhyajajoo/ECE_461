@@ -1,9 +1,5 @@
-console.log('GitHub API call')
 import * as fs from 'fs';
 import axios from 'axios';
-
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN; 
-
 
 // Function to request APIs
 async function getData(requestUrl: string, api: string) {
@@ -11,63 +7,13 @@ async function getData(requestUrl: string, api: string) {
 
     // Flushing data to an output file in root folder
     if (api == 'github api') {
+      graphql_query(requestUrl);
       
-      // calculating sub scores - directly use response.data to get sub scores
-      const query = `
-      query {
-        repository(owner: "owner1", name: "repo1") {
-          name
-          url
-          description
-          watchers {
-          totalCount
-          }
-          forks {
-              totalCount
-          }
-          issues {
-              totalCount
-          }
-          stargazerCount
-          }
-          licenses {
-              name
-          }
-          }
-        `;
-      var user = 'aaradhyajajoo'
-      var github_token = process.env.GITHUB_TOKEN
-      console.log("Token instantiated = " + github_token)
-
-      // add auth token to headers
-      try {
-        await axios({
-          url: requestUrl,
-          method: 'post',
-          headers: {
-            Authorization: `Bearer ${github_token}`
-          },
-          data: {
-            query: query
-          }
-        }).then((response) => {
-          const Console = new console.Console(fs.createWriteStream('./GitHub_API_data_repsonse.txt'));
-          Console.log(response.data);
-        });
-    } catch (error) {
-      console.error("There was a problem with the fetch operation with ", requestUrl);
-      // console.log('Token instantiated = ' + process.env.GITHUB_TOKEN)
-      // console.log(error)
-      // Bad credential error message - GITHUB TOKEN
-    }
-  }
     var response = await axios.get(requestUrl);
     if (api == 'npmjs api') {
       const Console = new console.Console(fs.createWriteStream('./NPMJS_API_data_repsonse.txt'));
       Console.log(response.data);
     }
-
-    console.log('Data type: ', typeof (response.data))
 }
 
 function calculate_scores() {
@@ -90,7 +36,6 @@ function calculate_scores() {
 function main() {
 
   var args = process.argv;
-  console.log('.txt file is: ' + args[2])
 
   var filename = args[2]
   // replace carriage return with empty string
@@ -118,8 +63,57 @@ function main() {
 }
 
 // write a graphql query to get the data from the github api
-function graphql_query() {
-
+async function graphql_query() {
+  var query = `
+  query {
+    repository(owner: "owner1", name: "repo1") {
+      name
+      url
+      description
+      watchers {
+      totalCount
+      }
+      forks{
+        totalCount
+      }
+      issues {
+          totalCount
+      }
+      stargazerCount
+      licenseInfo{
+        name
+      }
+      }
+      }
+    `;
+  var github_token = process.env.GITHUB_TOKEN
+	
+	  
+  // add auth token to headers
+  try {
+    await axios({
+      url: requestUrl,
+      method: 'post',
+      headers: {
+        Authorization: `Token ${github_token}`,
+        Accept: 'application/vnd.github+json; application/vnd.github.hellcat-preview+json; application/vnd.github.squirrel-girl-preview+json'
+      },
+      data: {
+        query: query
+      }
+    }).then((response) => {
+      const Console = new console.Console(fs.createWriteStream('./GitHub_API_data_repsonse.txt'));
+      Console.log(response.data);
+      Console.log(response.data.data.repository.issues.totalCount)
+      Console.log(response.data.data.repository.forks.totalCount)
+      Console.log(response.data.data.repository.watchers.totalCount)
+      Console.log(response.data.data.repository.stargazerCount)
+      // iterate through licenses
+      Console.log(response.data.data.repository.licenseInfo.name)
+    });
+} catch (error) {
+  console.error("There was a problem with the fetch operation with ", requestUrl);
+}
 }
 
 main(); // Main 

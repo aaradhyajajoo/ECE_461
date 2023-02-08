@@ -1,0 +1,19 @@
+{
+  data: {
+    repository: {
+      name: 'nodist',
+      url: 'https://github.com/nullivex/nodist',
+      description: 'Natural node.js and npm version manager for windows.',
+      watchers: [Object],
+      forks: [Object],
+      issues: [Object],
+      stargazerCount: 1468,
+      licenseInfo: [Object]
+    }
+  }
+}
+193
+187
+59
+1468
+MIT License
