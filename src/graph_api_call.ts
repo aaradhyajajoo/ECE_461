@@ -1,7 +1,6 @@
 console.log('GitHub API call')
 import * as fs from 'fs';
 import axios from 'axios';
-
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN; 
 
 
@@ -35,8 +34,30 @@ async function getData(requestUrl: string, api: string) {
     // Bad credential error message - GITHUB TOKEN
   }
 }
+//add bus_factor function
 
-function calculate_scores() {
+async function bus_factor_calc(requestUrl: string) {
+  try {
+    const response = await axios.get(requestUrl, {
+      headers: {
+        Accept: 'application/vnd.github+json; application/vnd.github.hellcat-preview+json; application/vnd.github.squirrel-girl-preview+json',
+        'Authorization': `Token ${GITHUB_TOKEN}`
+      }
+    });
+
+    const contributors = response.data.contributors_count;
+    let commits = 0;
+
+    for (let i = 0; i < contributors; i++) {
+      const contributor = response.data[i];
+      commits += contributor.contributions;
+    }
+
+    const bus_factor = 1 - (1 / (contributors * (contributors - 1))) * commits;
+    return bus_factor;
+
+
+function calculate_scores(srting :URL) {
 
   // 2 from GitHub API
   // 1 from GraphQL
@@ -44,13 +65,16 @@ function calculate_scores() {
   // 1 from source code
 
   var license_compatibility: number = 0; // GitHub API
-  var bus_factor = 0; // Tanvi
+  const bus_factor = bus_factor_calc(URL)
   var ramp_upTime = 0; // Eshaan 
   var responsiveness = 0; // Aaradhya
   var correctness = 0; //  Ilan
 
   var net_score = (0.4 * responsiveness + 0.1 * bus_factor + 0.2 * license_compatibility + 0.1 * ramp_upTime + 0.2 * correctness)/ 5
 }
+
+
+
 
 // Main function
 function main() {
