@@ -36,37 +36,41 @@ async function getData(requestUrl: string, api: string) {
 }
 //add bus_factor function
 
-function getBusFactor(response: any): number {
-  const contributors = response.data;
-  const numContributors = contributors.length;
+async function getBusFactor(filePath: string): Promise<any> {
+  try {
+    const data = fs.readFileSync(filePath, "utf-8");
+    const response = JSON.parse(data);
+    const contributors = response.contributors;
+    const commits = response.commits;
+    const busFactor = contributors.length ? (commits.length / contributors.length) : 0;
 
-  let totalCommits = 0;
-  for (const contributor of contributors) {
-    totalCommits += contributor.contributions;
+    return {
+      busFactor };
+  } catch (error: any) {
+    console.error(error);
+    throw error;
   }
-
-  return (
-    numContributors > 0 && totalCommits > 0
-      ? 1 / (numContributors * totalCommits)
-      : 0
-  );
 }
 
+// Add correctness function 
 
-function calculate_scores(response) { // not sure what to make the argument type
 
-  // 2 from GitHub API
+
+
+async function calculate_scores(filePath: string): Promise<number> {
+    // 2 from GitHub API
   // 1 from GraphQL
   // 1 from REST
   // 1 from source code
 
-  var license_compatibility: number = 0; // GitHub APIcalculateBusFactor(repoOwner: string, repoName: string) {
-  const bus_factor = getBusFactor(response) // using github api here
-  var ramp_upTime = 0; // Eshaan  // Using source code here
-  var responsiveness = 0; // Aaradhya // using GraphQL here
-  var correctness = 0; //  Ilan // using rest api here
+  let bus_factor: number = await getBusFactor(filePath); //// using github api here
+  const responsiveness = getResponsivenessScore(filePath); // Aaradhya // using GraphQL here
+  const correctness = getCorrectnessScore(filePath); //  Ilan // using rest api here
+  const license_compatibility = getLicenseCompatibilityScore(filePath); // GitHub API
+  const ramp_up_time = getRampUpTimeScore(); // Eshaan  // Using source code here
   
-  var net_score = (0.4 * responsiveness + 0.1 * bus_factor + 0.2 * license_compatibility + 0.1 * ramp_upTime + 0.2 * correctness)/ 5
+  const net_score = (0.4 * responsiveness + 0.1 * bus_factor + 0.2 * license_compatibility + 0.1 * ramp_up_time + 0.2 * correctness) / 5;
+  return net_score;
 }
 
 
@@ -92,9 +96,7 @@ function main() {
       getData(request_url, 'github api');
       const filePath = // the file path or text file name here
 
-      const fileContents = await fs.promises.readFile(filePath, 'utf-8'); // to parse the output textfile
-      const response = JSON.parse(fileContents);
-      calculate_scores(response)
+      calculate_scores(filePath)
     }
 
     // query {
