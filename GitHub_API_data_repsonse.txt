@@ -1,19 +1,18 @@
 {
   data: {
     repository: {
-      name: 'nodist',
-      url: 'https://github.com/nullivex/nodist',
-      description: 'Natural node.js and npm version manager for windows.',
+      name: 'ECE_461',
+      url: 'https://github.com/aaradhyajajoo/ECE_461',
+      description: null,
       watchers: [Object],
       forks: [Object],
       issues: [Object],
-      stargazerCount: 1468,
-      licenseInfo: [Object]
+      stargazerCount: 0,
+      licenseInfo: null
     }
   }
 }
-193
-187
-59
-1468
-MIT License
+4
+1
+2
+0
