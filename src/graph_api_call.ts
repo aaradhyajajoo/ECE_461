@@ -17,7 +17,7 @@ var repo_URL : string
 // }
 
 async function getData_github(requestUrl: string, owner: string, repo: string) {
-      var query = `
+    var query = `
     query {
       repository(owner: "owner123", name: "repo1") {
         name
@@ -98,7 +98,8 @@ function calculate_scores(issuesCount: number, forksCount : number, watchersCoun
   }
   else
   {
-    bus_factor = (issuesCount / (issuesCount + forksCount + watchersCount + stargazerCount)) * license_compatibility;
+    var bus_factor_str = ((issuesCount / (issuesCount + forksCount + watchersCount + stargazerCount)) * license_compatibility).toFixed(2);
+    bus_factor = Number(bus_factor_str);
   }
 
   responsiveness = (Math.abs(1 - (1 / issuesCount))).toFixed(2);
