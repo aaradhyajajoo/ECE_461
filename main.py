@@ -18,7 +18,8 @@ def main(args, *kwargs):
 
     # no arguments provided
     if (len(args) == 0):
-        sys.exit("No arguments provided")
+        print("No arguments provided")
+        sys.exit("1")
     
     # check if the first argument is install or test
     if (args[0].strip() == "install"):
@@ -47,7 +48,8 @@ def check_files_exists(args):
     for arg in args:
         arg = arg.strip()
         if not os.path.exists(arg):
-            sys.exit("File does not exist")
+            print(f"File {arg} does not exist")
+            sys.exit(1)
         else:
             continue
     
