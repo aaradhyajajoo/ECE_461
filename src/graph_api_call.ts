@@ -53,7 +53,7 @@ function getBusFactor(response: any): number {
 }
 
 
-function calculate_scores(response) {
+function calculate_scores(response) { // not sure what to make the argument type
 
   // 2 from GitHub API
   // 1 from GraphQL
@@ -61,9 +61,9 @@ function calculate_scores(response) {
   // 1 from source code
 
   var license_compatibility: number = 0; // GitHub APIcalculateBusFactor(repoOwner: string, repoName: string) {
-  const bus_factor = getBusFactor(response)
-  var ramp_upTime = 0; // Eshaan 
-  var responsiveness = 0; // Aaradhya
+  const bus_factor = getBusFactor(response) // using github api here
+  var ramp_upTime = 0; // Eshaan  // Using source code here
+  var responsiveness = 0; // Aaradhya // using GraphQL here
   var correctness = 0; //  Ilan // using rest api here
   
   var net_score = (0.4 * responsiveness + 0.1 * bus_factor + 0.2 * license_compatibility + 0.1 * ramp_upTime + 0.2 * correctness)/ 5
@@ -90,6 +90,11 @@ function main() {
     if (url.includes('github')) {
       var request_url = "https://api.github.com/repos/" + owner + "/" + repo
       getData(request_url, 'github api');
+      const filePath = // the file path or text file name here
+
+      const fileContents = await fs.promises.readFile(filePath, 'utf-8'); // to parse the output textfile
+      const response = JSON.parse(fileContents);
+      calculate_scores(response)
     }
 
     // query {
@@ -119,7 +124,7 @@ function main() {
       getData(request_url, 'npmjs api');
     }
   });
-  calculate_scores(response)
+  //calculate_scores(response)
 }
 
 // write a graphql query to get the data from the github api
@@ -128,4 +133,3 @@ function graphql_query() {
 }
 
 main(); // Main 
- // Subscores and Net Score
