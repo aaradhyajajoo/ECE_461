@@ -1,17 +1,3 @@
 # !/bin/sh
-echo "Running..."
-# if [ "$1" = "install" ]; then
-#   echo "Installing dependencies..."
-#   cd src
-#   echo "In src folder"
-#   npm install
-#   echo "npm installed"
-#   tsc index.ts && node index.js
-#   echo "dependencies installed"
-#   exit 0
-# else
-#   python main.py "$@"
-#   exit 0
-# fi
 python3 main.py "$@"
 exit 0

@@ -2,20 +2,16 @@
 
 import sys
 import os 
-import requests
-
-urls = set() # list of urls
-
 
 # install function
-
 def install():
-    # with open("/dev/null", "w") as f, redirect_stdout(f):
-        # os.system("pip install -r requirements.txt")
-        os.system("npm install")
-        os.system("ts-node src/install.ts")
-        os.system("node src/install.js")
-    # sys.stdout = open("/dev/null", "w")
+    os.system("npm --silent --no-progress install")
+    os.system("npm --silent --no-progress install -g typescript")
+    os.system("npm --silent --no-progress install -g ts-node")
+    os.system("pip install -r requirements.txt > /dev/null 2>&1")
+    os.system("ts-node src/install.ts > /dev/null 2>&1")
+    os.system("node src/install.js")
+    sys.exit(0)
 
 def main(args, *kwargs):
 
@@ -35,71 +31,6 @@ def main(args, *kwargs):
         check_files_exists(args, *kwargs)
         os.system(f"ts-node src/graph_api_call.ts {args[0]}")
         os.system(f"node src/graph_api_call.js {args[0]}")
-        # graph_api_call()
-    
-def graph_api_call():
-    # the query to get the data
-    query = """ 
-    query {
-          repository(owner: "owner1", name: "repo1") {
-            name
-            url
-            description
-            watchers {
-            totalCount
-            }
-            forks {
-                totalCount
-            }
-            issues {
-                totalCount
-            }
-            stargazerCount
-            }
-            licenses {
-                name
-            }
-            }
-    """
-
-    prev_owner = "owner1"
-    prev_repo = "repo1"
-    username = "aaradhyajajoo"
-    token = os.getenv('GITHUB_TOKEN')
-
-    for url in urls:
-        if url.split("/")[2] == "github.com":
-
-            # get the repository owner and name
-            owner = url.split("/")[3]
-            repo = url.split("/")[4]
-
-            # the url to make the request to
-            request_url = "https://api.github.com/graphql"
-            
-            # replace the owner and repo in the query
-            query = query.replace(prev_owner, owner, 1)
-            query = query.replace(prev_repo, repo, 1)
-
-            prev_owner = owner
-            prev_repo = repo
-
-            # make the request
-            data = requests.post(request_url, json={"query": query}, auth=(username, token))
-
-            # print the response
-            if data.status_code == 200:
-                print(data.json())
-
-def read_file(file):
-    # check if the file is readable
-    if not (os.access(file, os.R_OK)):
-        sys.exit("File {} is not readable".format(file))
-
-    with open(file, "r") as f:
-        for line in f:
-            urls.add(line.strip())
-    
 
 # check if the files with the input path exist
 def check_files_exists(args):
@@ -114,7 +45,7 @@ def check_files_exists(args):
         if not os.path.exists(arg):
             sys.exit("File does not exist")
         else:
-            read_file(arg)
+            continue
     
     
 if __name__ == "__main__":
