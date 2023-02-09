@@ -77,7 +77,7 @@ async function get_correctness(url: string): Promise<number> {
 
 
 
-async function calculate_scores(filePath: string, registryURL: string): Promise<number> {
+async function calculate_scores(filePath: string, registryURL: string): Promise<number> { // taking the url and filepath as arguments
     // 2 from GitHub API
   // 1 from GraphQL
   // 1 from REST
@@ -116,7 +116,7 @@ function main() {
       getData(request_url, 'github api');
       const filePath = // the file path or text file name here
 
-      calculate_scores(filePath)
+      calculate_scores(filePath, request_url)
     }
 
     // query {
