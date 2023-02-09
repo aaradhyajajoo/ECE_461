@@ -53,19 +53,39 @@ async function getBusFactor(filePath: string): Promise<any> {
 }
 
 // Add correctness function 
+async function get_correctness(url: string): Promise<number> {
+  // Make the REST API call to the provided URL
+  const response = await axios.get(url);
+  // Extract the relevant data from the response
+  const data = response.data;
+  // Your operationalization of the correctness aspect goes here, e.g.:
+  let correctness = 0;
+  // Example operationalization:
+  // Check the number of bugs reported and the number of bug fixes
+  const numBugs = data.numBugs;
+  const numBugFixes = data.numBugFixes;
+  // Calculate the correctness score
+  correctness = numBugFixes / (numBugs + numBugFixes);
+  // Make sure the score is between 0 and 1
+  correctness = Math.min(Math.max(correctness, 0), 1);
+  // Return the final correctness score
+  return correctness;
+}
 
 
 
 
-async function calculate_scores(filePath: string): Promise<number> {
+
+
+async function calculate_scores(filePath: string, registryURL: string): Promise<number> {
     // 2 from GitHub API
   // 1 from GraphQL
   // 1 from REST
   // 1 from source code
 
   let bus_factor: number = await getBusFactor(filePath); //// using github api here
-  const responsiveness = getResponsivenessScore(filePath); // Aaradhya // using GraphQL here
-  const correctness = getCorrectnessScore(filePath); //  Ilan // using rest api here
+  const responsiveness =  getResponsivenessScore(filePath); // Aaradhya // using GraphQL here
+  var correctness = await get_correctness(registryURL);//  Ilan // using rest api here
   const license_compatibility = getLicenseCompatibilityScore(filePath); // GitHub API
   const ramp_up_time = getRampUpTimeScore(); // Eshaan  // Using source code here
   
