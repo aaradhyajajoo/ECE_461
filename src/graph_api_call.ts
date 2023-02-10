@@ -66,7 +66,7 @@ function ramp_upTime_calc()
 }
 
 // Function to request APIs from github GraphQL API
-async function getData_github(requestUrl: string, owner: string, repo: string) {
+async function getData_github(requestUrl: string, owner: string, repo: string, flag : number) {
     var query = `
     query {
       repository(owner: "owner123", name: "repo1") {
@@ -115,7 +115,15 @@ async function getData_github(requestUrl: string, owner: string, repo: string) {
       }).then((response) => {
 
         // get the data from the response
-        repo_URL = response.data.data.repository.url;
+        if (flag == 0)
+        {
+          repo_URL = response.data.data.repository.url;
+        }
+        else
+        {
+          repo_URL = "https://npmsjs.com/package/" + response.data.data.repository.name;
+        }
+        
         issuesCount = response.data.data.repository.issues.totalCount;
         forksCount = response.data.data.repository.forks.totalCount;
         watchersCount = response.data.data.repository.watchers.totalCount;
@@ -158,7 +166,7 @@ async function getData_npmjs(requestUrl: string)
     var owner = npmjs_urls.split("/")[1];
     var repo = npmjs_urls.split("/")[2];
     var request_url = "https://api.github.com/graphql"
-    getData_github(request_url, owner, repo);
+    getData_github(request_url, owner, repo, 1);
 }
 
 function calculate_scores(issuesCount: number, forksCount : number, watchersCount : number, stargazerCount : number, licenseName : string, net_score: number)
@@ -180,18 +188,26 @@ function calculate_scores(issuesCount: number, forksCount : number, watchersCoun
   }
   else
   {
-    var bus_factor_str = ((issuesCount / (issuesCount + forksCount + watchersCount + stargazerCount)) * license_compatibility).toFixed(2);
+    var bus_factor_str = (((issuesCount) / (issuesCount + forksCount + watchersCount + stargazerCount)) * license_compatibility).toFixed(2);
     bus_factor = Number(bus_factor_str);
   }
 
   // calculate the responsiveness time
-  responsiveness = (Math.abs(1 - (1 / issuesCount))).toFixed(2);
-
+  if (watchersCount < issuesCount)
+  {
+    responsiveness = (Math.abs(1 - (watchersCount / issuesCount))).toFixed(2);
+  }
+  else
+  {
+    responsiveness = (Math.abs(1 - (issuesCount / watchersCount))).toFixed(2);
+  }
   // calculate the ramp_upTime
   ramp_upTime = Number(ramp_upTime_calc())
+
+  correctness = 1;
   
   // calculate the net_score time
-  var net_score = (0.4 * Number(responsiveness) + 0.1 * bus_factor + 0.2 * license_compatibility + 0.1 * ramp_upTime + 0.2 * correctness)/ 5
+  var net_score = Number(((0.4 * Number(responsiveness) + 0.1 * bus_factor + 0.2 * license_compatibility + 0.1 * ramp_upTime + 0.2 * correctness)).toFixed(2))
   write(license_compatibility, bus_factor, ramp_upTime,  Number(responsiveness), correctness, net_score);
 }
 
@@ -231,7 +247,7 @@ function main() {
     if (url.includes('github')) 
     {
       var request_url = "https://api.github.com/graphql"
-      getData_github(request_url, owner, repo);
+      getData_github(request_url, owner, repo, 0);
     }
 
     // NPM URLs
