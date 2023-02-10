@@ -1,6 +1,101 @@
 import * as fs from 'fs';
 import axios from 'axios';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN; 
+
+// Global variables
+var license_compatibility: number // done 
+var bus_factor: number // Tanvi - done
+var ramp_upTime: number // Eshaan - done
+var responsiveness: string // Aaradhya - done
+var correctness: number //  Ilan
+var net_score: number 
+var licenseName: string
+var issuesCount: number
+var forksCount: number
+var watchersCount: number
+var stargazerCount: number
+var repo_URL : string
+var verbosity : number;
+var filename : string;
+var filename = String(process.env.LOG_FILE);
+var verbosity = Number(process.env.LOG_LEVEL);
+
+function write_to_log_file()
+{
+  if (verbosity == 0)
+  {
+    return;
+  }
+  if (verbosity == 1)
+  {
+    var Console = new console.Console(fs.createWriteStream(filename, {flags: 'a'}));
+    Console.log("URL: " + repo_URL);
+    Console.log("NET_SCORE: " + net_score);
+    Console.log("RAMP_UP_SCORE: " + ramp_upTime);
+    Console.log("CORRECTNESS_SCORE: " + correctness);
+    Console.log("BUS_FACTOR_SCORE: " + bus_factor);
+    Console.log("RESPONSIVENESS_SCORE: " + responsiveness);
+    Console.log("LICENSE_COMPATIBILITY_SCORE: " + license_compatibility);
+    Console.log("\n")
+  }
+  if (verbosity == 2)
+  {
+    var Console = new console.Console(fs.createWriteStream(filename, {flags: 'a'}));
+    Console.log("URL: " + repo_URL);
+    Console.log("NET_SCORE: " + net_score);
+    Console.log("RAMP_UP_SCORE: " + ramp_upTime);
+    Console.log("CORRECTNESS_SCORE: " + correctness);
+    Console.log("BUS_FACTOR_SCORE: " + bus_factor);
+    Console.log("RESPONSIVENESS_SCORE: " + responsiveness);
+    Console.log("LICENSE_COMPATIBILITY_SCORE: " + license_compatibility);
+    Console.log("The following are how the individual scores are calculated: " + repo_URL);
+    Console.log("Bus Factor = ((issuesCount / (issuesCount + forksCount + watchersCount + stargazerCount)) * license_compatibility)");
+    Console.log("Responsiveness = (Math.abs(1 - (1 / issuesCount)))")
+    Console.log("Correctness = (Math.abs(1 - (1 / forksCount)))")
+    Console.log("Ramp Up Time = (Math.abs(1 - (1 / watchersCount)))")
+    Console.log("\n")
+    Console.log("\n")
+  }
+}
+
+function ramp_upTime_calc()
+{
+  // read from a file called rampedUp.txt
+  var rampedUp = fs.readFileSync('src\/ramp_up.txt', 'utf-8');
+  var rampedUp_arr = rampedUp.split(/\r?\n/);
+  return rampedUp_arr[0];
+}
+
+// Function to request APIs from github GraphQL API
+async function getData_github(requestUrl: string, owner: string, repo: string) {
+    var query = `
+    query {
+      repository(owner: "owner123", name: "repo1") {
+        name
+        url
+        description
+        watchers {
+        totalCount
+        }
+        forks{
+          totalCount
+        }
+        issues {
+            totalCount
+        }
+        stargazerCount
+        licenseInfo{
+          name
+        }
+        }
+        }
+      `;
+
+    //  get the github token from the environment variable
+    var github_token = process.env.GITHUB_TOKEN
+
+    // replace the owner and repo name in the query
+    var prev_owner = "owner123";
+    var prev_repo = "repo1";
 
     query = query.replace(prev_owner, owner);
     query = query.replace(prev_repo, repo);       
@@ -44,47 +139,6 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     console.error(error);
   }
 }
-//add bus_factor function
-
-async function getBusFactor(filePath: string): Promise<any> {
-  try {
-    const data = fs.readFileSync(filePath, "utf-8");
-    const response = JSON.parse(data);
-    const contributors = response.contributors;
-    const commits = response.commits;
-    const busFactor = contributors.length ? (commits.length / contributors.length) : 0;
-
-    return {
-      busFactor };
-  } catch (error: any) {
-    console.error(error);
-    throw error;
-  }
-}
-
-// Add correctness function 
-async function get_correctness(url: string): Promise<number> {
-  // Make the REST API call to the provided URL
-  const response = await axios.get(url);
-  // Extract the relevant data from the response
-  const data = response.data;
-  // Your operationalization of the correctness aspect goes here, e.g.:
-  let correctness = 0;
-  // Example operationalization:
-  // Check the number of bugs reported and the number of bug fixes
-  const numBugs = data.numBugs;
-  const numBugFixes = data.numBugFixes;
-  // Calculate the correctness score
-  correctness = numBugFixes / (numBugs + numBugFixes);
-  // Make sure the score is between 0 and 1
-  correctness = Math.min(Math.max(correctness, 0), 1);
-  // Return the final correctness score
-  return correctness;
-}
-
-
-
-
 
 // Function to request APIs
 async function getData_npms(requestUrl: string)
@@ -120,20 +174,6 @@ function calculate_scores(issuesCount: number, forksCount : number, watchersCoun
   // calculate the responsiveness time
   responsiveness = (Math.abs(1 - (1 / issuesCount))).toFixed(2);
 
-async function calculate_scores(filePath: string, registryURL: string): Promise<number> { // taking the url and filepath as arguments
-    // 2 from GitHub API
-  // 1 from GraphQL
-  // 1 from REST
-  // 1 from source code
-
-  let bus_factor: number = await getBusFactor(filePath); //// using github api here
-  const responsiveness =  getResponsivenessScore(filePath); // Aaradhya // using GraphQL here
-  var correctness = await get_correctness(registryURL);//  Ilan // using rest api here
-  const license_compatibility = getLicenseCompatibilityScore(filePath); // GitHub API
-  const ramp_up_time = getRampUpTimeScore(); // Eshaan  // Using source code here
-  
-  const net_score = (0.4 * responsiveness + 0.1 * bus_factor + 0.2 * license_compatibility + 0.1 * ramp_up_time + 0.2 * correctness) / 5;
-  return net_score;
   // calculate the ramp_upTime
   ramp_upTime = Number(ramp_upTime_calc())
   
@@ -149,9 +189,6 @@ function write(license_compatibility: number, bus_factor : number, ramp_upTime :
   var line_to_print = "{\"URL\":\"" + repo_URL + "\", \"NET_SCORE\":" + net_score + ", \"RAMP_UP_SCORE\":" + ramp_upTime + ", \"CORRECTNESS_SCORE\":" + correctness + ", \"BUS_FACTOR_SCORE\":" + bus_factor + ", \"RESPONSIVE_MAINTAINER_SCORE\":" + responsiveness + ", \"LICENSE_SCORE\":" + license_compatibility + "}"
   console.log(line_to_print);
 }
-
-
-
 
 // Main function
 function main() {
@@ -178,12 +215,6 @@ function main() {
     var repo = url.split('/')[4]
 
     // GitHub URLs 
-    if (url.includes('github')) {
-      var request_url = "https://api.github.com/repos/" + owner + "/" + repo
-      getData(request_url, 'github api');
-      const filePath = // the file path or text file name here
-
-      calculate_scores(filePath, request_url)
     if (url.includes('github')) 
     {
       var request_url = "https://api.github.com/graphql"
@@ -206,10 +237,4 @@ function main() {
   });
 }
 
-// write a graphql query to get the data from the github api
-function graphql_query() {
-
-}
-
 main(); // Main 
-
