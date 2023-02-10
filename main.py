@@ -2,6 +2,38 @@
 
 import sys
 import os 
+import time
+import git
+
+def ramp_Up():
+    # Clone the repository
+    os.system("mkdir Useless")
+    repo = git.Repo.clone_from("https://github.com/aaradhyajajoo/ECE_461.git","./Useless")
+    repo.remote().pull()
+
+    i = 0
+    for commit in repo.iter_commits(): # iter_commits starts from the latest commit
+        first_commit = commit
+        i+=1
+
+    print(i)
+    current_commit = repo.commit()
+
+    start_time = int(first_commit.committed_datetime.timestamp())
+    end_time = int(current_commit.committed_datetime.timestamp())
+
+    # Calculate the ramp-up time
+    ramp_up_time = end_time - start_time
+    total_time = time.time() - start_time
+    normalized_ramp_up_time = ramp_up_time / total_time
+    print("Ramp-up time:", ramp_up_time, "seconds")
+    print('Total time:', total_time, "seconds")
+    print('Normalized Ramp-up time:', normalized_ramp_up_time)
+
+    with open('ramp_up.txt', 'w') as f:
+        f.write(normalized_ramp_up_time)
+
+    os.system("rm -rf Useless")
 
 # install function
 def install():
@@ -33,6 +65,7 @@ def main(args, *kwargs):
     # default test: check if the files exist
     else:
         check_files_exists(args, *kwargs)
+        ramp_Up()
         os.system(f"ts-node src/graph_api_call.ts {args[0]}")
         os.system(f"node src/graph_api_call.js {args[0]}")
         sys.exit(0)

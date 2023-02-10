@@ -4,7 +4,7 @@ import axios from 'axios';
 // Global variables
 var license_compatibility: number // done 
 var bus_factor: number // Tanvi - done
-var ramp_upTime: number // Eshaan 
+var ramp_upTime: number // Eshaan - done
 var responsiveness: string // Aaradhya - done
 var correctness: number //  Ilan
 var net_score: number 
@@ -14,6 +14,54 @@ var forksCount: number
 var watchersCount: number
 var stargazerCount: number
 var repo_URL : string
+var verbosity : number;
+var filename : string;
+var filename = String(process.env.LOG_FILE);
+var verbosity = Number(process.env.LOG_LEVEL);
+
+function write_to_log_file()
+{
+  if (verbosity == 0)
+  {
+    return;
+  }
+  if (verbosity == 1)
+  {
+    var Console = new console.Console(fs.createWriteStream(filename, {flags: 'w'}));
+    Console.log("URL: " + repo_URL);
+    Console.log("NET_SCORE: " + net_score);
+    Console.log("RAMP_UP_SCORE: " + ramp_upTime);
+    Console.log("CORRECTNESS_SCORE: " + correctness);
+    Console.log("BUS_FACTOR_SCORE: " + bus_factor);
+    Console.log("RESPONSIVENESS_SCORE: " + responsiveness);
+    Console.log("LICENSE_COMPATIBILITY_SCORE: " + license_compatibility);
+  }
+  if (verbosity == 2)
+  {
+    var Console = new console.Console(fs.createWriteStream(filename, {flags: 'w'}));
+    Console.log("URL: " + repo_URL);
+    Console.log("NET_SCORE: " + net_score);
+    Console.log("RAMP_UP_SCORE: " + ramp_upTime);
+    Console.log("CORRECTNESS_SCORE: " + correctness);
+    Console.log("BUS_FACTOR_SCORE: " + bus_factor);
+    Console.log("RESPONSIVENESS_SCORE: " + responsiveness);
+    Console.log("LICENSE_COMPATIBILITY_SCORE: " + license_compatibility);
+    Console.log("The following are how the individual scores are calculated: " + repo_URL);
+    Console.log("Bus Factor = ((issuesCount / (issuesCount + forksCount + watchersCount + stargazerCount)) * license_compatibility)");
+    Console.log("Responsiveness = (Math.abs(1 - (1 / issuesCount)))")
+    Console.log("Correctness = (Math.abs(1 - (1 / forksCount)))")
+    Console.log("Ramp Up Time = (Math.abs(1 - (1 / watchersCount)))")
+  }
+}
+
+function ramp_upTime_calc()
+{
+  // read from a file called rampedUp.txt
+  var rampedUp = fs.readFileSync('rampedUp.txt', 'utf-8');
+  var rampedUp_arr = rampedUp.split(/\r?\n/);
+  console.log(rampedUp_arr);
+  return rampedUp_arr;
+}
 
 // Function to request APIs from github GraphQL API
 async function getData_github(requestUrl: string, owner: string, repo: string) {
@@ -125,19 +173,17 @@ function calculate_scores(issuesCount: number, forksCount : number, watchersCoun
   responsiveness = (Math.abs(1 - (1 / issuesCount))).toFixed(2);
 
   // calculate the ramp_upTime
-
+  ramp_upTime = Number(ramp_upTime_calc())
+  
   // calculate the net_score time
   var net_score = (0.4 * Number(responsiveness) + 0.1 * bus_factor + 0.2 * license_compatibility + 0.1 * ramp_upTime + 0.2 * correctness)/ 5
-  write_to_console(license_compatibility, bus_factor, ramp_upTime,  Number(responsiveness), correctness, net_score);
+  write(license_compatibility, bus_factor, ramp_upTime,  Number(responsiveness), correctness, net_score);
 }
 
-function write_to_console(license_compatibility: number, bus_factor : number, ramp_upTime : number, responsiveness : number, correctness : number, net_score : number) {
-  
-  // write to a file
-  // var filename = process.env.LOG_FILE;
-  // var verbosity = process.env.LOG_LEVEL;
-
+function write(license_compatibility: number, bus_factor : number, ramp_upTime : number, responsiveness : number, correctness : number, net_score : number) 
+{  
   // write to the console
+  write_to_log_file()
   var line_to_print = "{\"URL\":\"" + repo_URL + "\", \"NET_SCORE\":" + net_score + ", \"RAMP_UP_SCORE\":" + ramp_upTime + ", \"CORRECTNESS_SCORE\":" + correctness + ", \"BUS_FACTOR_SCORE\":" + bus_factor + ", \"RESPONSIVE_MAINTAINER_SCORE\":" + responsiveness + ", \"LICENSE_SCORE\":" + license_compatibility + "}"
   console.log(line_to_print);
 }
