@@ -133,19 +133,32 @@ async function getData_github(requestUrl: string, owner: string, repo: string) {
         calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount, licenseName, net_score);
     });
   } catch (error) {
-    console.log(query)
-    console.log(owner, repo)
     console.error("There was a problem with the fetch operation with ", requestUrl);
     console.error(error);
   }
 }
 
 // Function to request APIs
-async function getData_npms(requestUrl: string)
+async function getData_npmjs(requestUrl: string)
 {
     var response = await axios.get(requestUrl);
-    const Console = new console.Console(fs.createWriteStream('./NPMJS_API_data_repsonse.txt'));
-    Console.log(response.data);
+    var npmjs_urls = response.data['repository']['url'];
+    npmjs_urls = npmjs_urls.split('//');
+    npmjs_urls = npmjs_urls[1].split('@');
+    if (npmjs_urls.length > 1)
+    {
+      npmjs_urls = npmjs_urls[1];
+    }
+
+    if (typeof npmjs_urls == 'object')
+    {
+      npmjs_urls = npmjs_urls[0];
+    }
+    npmjs_urls = npmjs_urls.replace('.git', '');
+    var owner = npmjs_urls.split("/")[1];
+    var repo = npmjs_urls.split("/")[2];
+    var request_url = "https://api.github.com/graphql"
+    getData_github(request_url, owner, repo);
 }
 
 function calculate_scores(issuesCount: number, forksCount : number, watchersCount : number, stargazerCount : number, licenseName : string, net_score: number)
@@ -224,8 +237,8 @@ function main() {
     // NPM URLs
     else if (url.includes('npm'))
     {
-      var request_url = "https://api.npms.io/v2/" + owner + "/" + repo
-      getData_npms(request_url);
+      var request_url = "https://replicate.npmjs.com/" + repo
+      getData_npmjs(request_url);
     }
     
     // Invalid URL
