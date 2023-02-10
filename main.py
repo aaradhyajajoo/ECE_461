@@ -3,10 +3,13 @@
 import sys
 import os 
 import time
-import git
 
 def ramp_Up():
     # Clone the repository
+    import git
+    if (os.path.exists("Useless")):
+        os.system("rm -rf Useless")
+
     os.system("mkdir Useless")
     repo = git.Repo.clone_from("https://github.com/aaradhyajajoo/ECE_461.git","./Useless")
     repo.remote().pull()
@@ -16,7 +19,6 @@ def ramp_Up():
         first_commit = commit
         i+=1
 
-    print(i)
     current_commit = repo.commit()
 
     start_time = int(first_commit.committed_datetime.timestamp())
@@ -26,21 +28,19 @@ def ramp_Up():
     ramp_up_time = end_time - start_time
     total_time = time.time() - start_time
     normalized_ramp_up_time = ramp_up_time / total_time
-    print("Ramp-up time:", ramp_up_time, "seconds")
-    print('Total time:', total_time, "seconds")
-    print('Normalized Ramp-up time:', normalized_ramp_up_time)
 
-    with open('ramp_up.txt', 'w') as f:
-        f.write(normalized_ramp_up_time)
+    with open('src/ramp_up.txt', 'w') as f:
+        f.write(str(round(normalized_ramp_up_time,2)))
 
-    os.system("rm -rf Useless")
+    # os.system("rm -rf Useless/.git/objects/pack/")
+    # os.system("rm -rf Useless")
 
 # install function
 def install():
     os.system("npm --silent --no-progress install")
-    os.system("npm --silent --no-progress install -g typescript")
-    os.system("npm --silent --no-progress install -g ts-node")
-    os.system("npm --silent --no-progress install -g ts-node-dev")
+    os.system("npm --silent --no-progress install typescript")
+    os.system("npm --silent --no-progress install ts-node")
+    os.system("npm --silent --no-progress install ts-node-dev")
     os.system("pip install -q -r requirements.txt > /dev/null 2>&1")
     os.system("ts-node src/install.ts > /dev/null 2>&1")
     os.system("node src/install.js")
@@ -66,7 +66,7 @@ def main(args, *kwargs):
     else:
         check_files_exists(args, *kwargs)
         ramp_Up()
-        os.system(f"ts-node src/graph_api_call.ts {args[0]}")
+        os.system(f"tsc src/graph_api_call.ts {args[0]}")
         os.system(f"node src/graph_api_call.js {args[0]}")
         sys.exit(0)
 

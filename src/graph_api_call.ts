@@ -27,7 +27,7 @@ function write_to_log_file()
   }
   if (verbosity == 1)
   {
-    var Console = new console.Console(fs.createWriteStream(filename, {flags: 'w'}));
+    var Console = new console.Console(fs.createWriteStream(filename, {flags: 'a'}));
     Console.log("URL: " + repo_URL);
     Console.log("NET_SCORE: " + net_score);
     Console.log("RAMP_UP_SCORE: " + ramp_upTime);
@@ -35,10 +35,11 @@ function write_to_log_file()
     Console.log("BUS_FACTOR_SCORE: " + bus_factor);
     Console.log("RESPONSIVENESS_SCORE: " + responsiveness);
     Console.log("LICENSE_COMPATIBILITY_SCORE: " + license_compatibility);
+    Console.log("\n")
   }
   if (verbosity == 2)
   {
-    var Console = new console.Console(fs.createWriteStream(filename, {flags: 'w'}));
+    var Console = new console.Console(fs.createWriteStream(filename, {flags: 'a'}));
     Console.log("URL: " + repo_URL);
     Console.log("NET_SCORE: " + net_score);
     Console.log("RAMP_UP_SCORE: " + ramp_upTime);
@@ -51,16 +52,17 @@ function write_to_log_file()
     Console.log("Responsiveness = (Math.abs(1 - (1 / issuesCount)))")
     Console.log("Correctness = (Math.abs(1 - (1 / forksCount)))")
     Console.log("Ramp Up Time = (Math.abs(1 - (1 / watchersCount)))")
+    Console.log("\n")
+    Console.log("\n")
   }
 }
 
 function ramp_upTime_calc()
 {
   // read from a file called rampedUp.txt
-  var rampedUp = fs.readFileSync('rampedUp.txt', 'utf-8');
+  var rampedUp = fs.readFileSync('src\/ramp_up.txt', 'utf-8');
   var rampedUp_arr = rampedUp.split(/\r?\n/);
-  console.log(rampedUp_arr);
-  return rampedUp_arr;
+  return rampedUp_arr[0];
 }
 
 // Function to request APIs from github GraphQL API
