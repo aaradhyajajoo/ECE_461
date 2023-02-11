@@ -3,11 +3,11 @@ import axios from 'axios';
 const { exec } = require('child_process');
 
 // Global variables
-var license_compatibility: number // done 
-var bus_factor: number // Tanvi - done
-var ramp_upTime: number // Eshaan - done
-var responsiveness: string // Aaradhya - done
-var correctness: number //  Ilan
+var license_compatibility: number 
+var bus_factor: number 
+var ramp_upTime: number 
+var responsiveness: string 
+var correctness: number 
 var net_score: number
 var licenseName: string
 var issuesCount: number
@@ -17,18 +17,21 @@ var stargazerCount: number
 var repo_URL: string
 var verbosity: number;
 var filename: string;
-var filename = String(process.env.LOG_FILE);
+var filename = String(process.env.LOG_FILE);   
 var verbosity = Number(process.env.LOG_LEVEL);
 var to_sort:{[key:number]:any[]}={};
 var global_url_count = 0;
 var i: number;
 
-function write_to_log_file() {
+
+
+// function that writes to the log file for verbosity
+function write_to_log_file() {    //0 means silent  
   if (verbosity == 0) {
     return;
   }
-  if (verbosity == 1) {
-    var Console = new console.Console(fs.createWriteStream(filename, { flags: 'a' }));
+  if (verbosity == 1) {    //1 means informational messages
+    var Console = new console.Console(fs.createWriteStream(filename, { flags: 'a' }));  //displays the scores to console
     Console.log("URL: " + repo_URL);
     Console.log("NET_SCORE: " + net_score);
     Console.log("RAMP_UP_SCORE: " + ramp_upTime);
@@ -38,8 +41,8 @@ function write_to_log_file() {
     Console.log("LICENSE_COMPATIBILITY_SCORE: " + license_compatibility);
     Console.log("\n")
   }
-  if (verbosity == 2) {
-    var Console = new console.Console(fs.createWriteStream(filename, { flags: 'a' }));
+  if (verbosity == 2) {    //2 means debug message
+    var Console = new console.Console(fs.createWriteStream(filename, { flags: 'a' })); //displa
     Console.log("URL: " + repo_URL);
     Console.log("NET_SCORE: " + net_score);
     Console.log("RAMP_UP_SCORE: " + ramp_upTime);
@@ -121,10 +124,10 @@ async function getData_github(requestUrl: string, owner: string, repo: string, f
         repo_URL = "https://npmsjs.com/package/" + response.data.data.repository.name;
       }
 
-      issuesCount = response.data.data.repository.issues.totalCount;
-      forksCount = response.data.data.repository.forks.totalCount;
-      watchersCount = response.data.data.repository.watchers.totalCount;
-      stargazerCount = response.data.data.repository.stargazerCount;
+      issuesCount = response.data.data.repository.issues.totalCount;       //store the number of issues
+      forksCount = response.data.data.repository.forks.totalCount;         //store the number of forks
+      watchersCount = response.data.data.repository.watchers.totalCount;   //store the number of watchers
+      stargazerCount = response.data.data.repository.stargazerCount;       //store the number of stargazers
       if (response.data.data.repository.licenseInfo == null) {
         licenseName = "None";
       }
@@ -136,7 +139,7 @@ async function getData_github(requestUrl: string, owner: string, repo: string, f
       calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount, licenseName, net_score);
     });
   } catch (error) {
-    console.error("There was a problem with the fetch operation with ", requestUrl);
+    console.error("There was a problem with the fetch operation with ", requestUrl);  //throws an error if a bad URL was inputted 
     console.error(error);
   }
 }
@@ -144,9 +147,9 @@ async function getData_github(requestUrl: string, owner: string, repo: string, f
 // Function to request APIs
 async function getData_npmjs(requestUrl: string) {
   var response = await axios.get(requestUrl);
-  var npmjs_urls = response.data['repository']['url'];
+  var npmjs_urls = response.data['repository']['url'];     //Extract Data from the URL
   npmjs_urls = npmjs_urls.split('//');
-  npmjs_urls = npmjs_urls[1].split('@');
+  npmjs_urls = npmjs_urls[1].split('@');    //This to remove "@" symbol from the 
   if (npmjs_urls.length > 1) {
     npmjs_urls = npmjs_urls[1];
   }
@@ -158,13 +161,13 @@ async function getData_npmjs(requestUrl: string) {
   var owner = npmjs_urls.split("/")[1];
   var repo = npmjs_urls.split("/")[2];
   var request_url = "https://api.github.com/graphql"
-  getData_github(request_url, owner, repo, 1);
+  getData_github(request_url, owner, repo, 1);   //Get and store the respone from github API
 }
 
 function calculate_scores(issuesCount: number, forksCount: number, watchersCount: number, stargazerCount: number, licenseName: string, net_score: number) {
   // check what license the repo has
   if (licenseName.includes('MIT')) {
-    license_compatibility = 1;
+    license_compatibility = 1;   
   }
   else {
     license_compatibility = 0;
@@ -175,24 +178,24 @@ function calculate_scores(issuesCount: number, forksCount: number, watchersCount
     bus_factor = 0;
   }
   else {
-    var bus_factor_str = (((issuesCount) / (issuesCount + forksCount + watchersCount + stargazerCount)) * license_compatibility).toFixed(2);
+    var bus_factor_str = (((issuesCount) / (issuesCount + forksCount + watchersCount + stargazerCount)) * license_compatibility).toFixed(2);   // Bus factor Formula
     bus_factor = Number(bus_factor_str);
   }
 
   // calculate the responsiveness time
   if (watchersCount < issuesCount) {
-    responsiveness = (Math.abs(1 - (watchersCount / issuesCount))).toFixed(2);
+    responsiveness = (Math.abs(1 - (watchersCount / issuesCount))).toFixed(2);  //Responsiveness formula
   }
   else {
-    responsiveness = (Math.abs(1 - (issuesCount / watchersCount))).toFixed(2);
+    responsiveness = (Math.abs(1 - (issuesCount / watchersCount))).toFixed(2);  
   }
   // calculate the ramp_upTime
-  ramp_upTime = Number(ramp_upTime_calc())
+  ramp_upTime = Number(ramp_upTime_calc())        //Ramp-up formula
 
   correctness = 1;
 
   // calculate the net_score time
-  var net_score = Number(((0.4 * Number(responsiveness) + 0.1 * bus_factor + 0.2 * license_compatibility + 0.1 * ramp_upTime + 0.2 * correctness)).toFixed(2))
+  var net_score = Number(((0.4 * Number(responsiveness) + 0.1 * bus_factor + 0.2 * license_compatibility + 0.1 * ramp_upTime + 0.2 * correctness)).toFixed(2))   //NET score formula
 
   write(license_compatibility, bus_factor, ramp_upTime, Number(responsiveness), correctness, net_score);
 }
