@@ -3,11 +3,11 @@ import axios from 'axios';
 const { exec } = require('child_process');
 
 // Global variables
-var license_compatibility: number 
-var bus_factor: number 
-var ramp_upTime: number 
-var responsiveness: string 
-var correctness: number 
+var license_compatibility: number
+var bus_factor: number
+var ramp_upTime: number
+var responsiveness: string
+var correctness: number
 var net_score: number
 var licenseName: string
 var issuesCount: number
@@ -17,13 +17,36 @@ var stargazerCount: number
 var repo_URL: string
 var verbosity: number;
 var filename: string;
-var filename = String(process.env.LOG_FILE);   
+var filename = String(process.env.LOG_FILE);
 var verbosity = Number(process.env.LOG_LEVEL);
-var to_sort:{[key:number]:any[]}={};
+var to_sort: { [key: number]: any[] } = {};
 var global_url_count = 0;
 var i: number;
 
+//  get the github token from the environment variable
+var github_token = process.env.GITHUB_TOKEN
 
+
+// function to get the license name from the URL
+async function get_license_name(owner: string, repo: string) {
+  try {
+    var repo_URL = "https://api.github.com/repos/" + owner + "/" + repo;
+    await axios.get(repo_URL).then((response) => {
+      var license_url = response.data['license'];
+      if (license_url == null) {
+        licenseName = "None";
+      }
+      else {
+        licenseName = response.data['license']['spdx_id'];
+      }
+    })
+  }
+  catch (error) {
+    console.log(error);
+    console.log("There was a problem with the fetch operation with ", owner);
+  }
+  return licenseName;
+}
 
 // function that writes to the log file for verbosity
 function write_to_log_file() {    //0 means silent  
@@ -85,15 +108,9 @@ async function getData_github(requestUrl: string, owner: string, repo: string, f
             totalCount
         }
         stargazerCount
-        licenseInfo{
-          name
-        }
         }
         }
       `;
-
-  //  get the github token from the environment variable
-  var github_token = process.env.GITHUB_TOKEN
 
   // replace the owner and repo name in the query
   var prev_owner = "owner123";
@@ -128,12 +145,7 @@ async function getData_github(requestUrl: string, owner: string, repo: string, f
       forksCount = response.data.data.repository.forks.totalCount;         //store the number of forks
       watchersCount = response.data.data.repository.watchers.totalCount;   //store the number of watchers
       stargazerCount = response.data.data.repository.stargazerCount;       //store the number of stargazers
-      if (response.data.data.repository.licenseInfo == null) {
-        licenseName = "None";
-      }
-      else {
-        licenseName = response.data.data.repository.licenseInfo.name;
-      }
+      licenseName = String(get_license_name(owner, repo));
 
       // call the function to calculate the scores
       calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount, licenseName, net_score);
@@ -166,8 +178,9 @@ async function getData_npmjs(requestUrl: string) {
 
 function calculate_scores(issuesCount: number, forksCount: number, watchersCount: number, stargazerCount: number, licenseName: string, net_score: number) {
   // check what license the repo has
+  console.log("License Name: " + licenseName);
   if (licenseName.includes('MIT')) {
-    license_compatibility = 1;   
+    license_compatibility = 1;
   }
   else {
     license_compatibility = 0;
@@ -187,7 +200,7 @@ function calculate_scores(issuesCount: number, forksCount: number, watchersCount
     responsiveness = (Math.abs(1 - (watchersCount / issuesCount))).toFixed(2);  //Responsiveness formula
   }
   else {
-    responsiveness = (Math.abs(1 - (issuesCount / watchersCount))).toFixed(2);  
+    responsiveness = (Math.abs(1 - (issuesCount / watchersCount))).toFixed(2);
   }
   // calculate the ramp_upTime
   ramp_upTime = Number(ramp_upTime_calc())        //Ramp-up formula
@@ -205,16 +218,16 @@ function write(license_compatibility: number, bus_factor: number, ramp_upTime: n
   write_to_log_file() // Environment Variable
 
 
-  
+
   i += 1 // Updating counter for urls
-  to_sort[net_score] = [repo_URL, ramp_upTime, correctness,bus_factor,responsiveness, license_compatibility]
+  to_sort[net_score] = [repo_URL, ramp_upTime, correctness, bus_factor, responsiveness, license_compatibility]
   // var line_to_print = "{\"URL\":\"" + repo_URL + "\", \"NET_SCORE\":" + net_score + ", \"RAMP_UP_SCORE\":" + ramp_upTime + ", \"CORRECTNESS_SCORE\":" + correctness + ", \"BUS_FACTOR_SCORE\":" + bus_factor + ", \"RESPONSIVE_MAINTAINER_SCORE\":" + responsiveness + ", \"LICENSE_SCORE\":" + license_compatibility + "}"
   if (i == global_url_count) {
     // console.log(to_sort)
     var Console = new console.Console(fs.createWriteStream("results.txt", { flags: 'w' }));
     Console.log(to_sort)
   }
- 
+
   // console.log(line_to_print);
 }
 
