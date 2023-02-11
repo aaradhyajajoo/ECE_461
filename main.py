@@ -3,6 +3,7 @@
 import sys
 import os 
 import time
+import regex as re
 
 def ramp_Up():
     # Clone the repository
@@ -58,8 +59,36 @@ def main(args, *kwargs):
         install()
 
     elif (args[0].strip() == "test"):
-        # test function to be called here
-        print("test")
+       
+        # for non existant file test
+        os.system('./run file_DNE > DNE_OUTPUT')
+
+        # for bad url test
+        os.system('echo "youtube.com" > invalid_file')
+        os.system('./run invalid_file > OUTPUT')
+        os.system('./run sample_url_file.txt > OUTPUT2')
+
+        # for duplicate test
+        os.system('cat sample_url_file.txt > CONC')
+        os.system('cat sample_url_file.txt >> CONC')
+        os.system('./run sample_url_file.txt > OUTPUT3')
+
+        time.sleep(10)   
+
+        # runs unit test
+        os.system("python3 -m pytest --tb=no --cov > PYTEST_RESULTS")
+        with open('PYTEST_RESULTS', 'r') as file:
+            test_string = file.read().replace('\n', '')
+
+        # interprets results of unit tests
+        results = re.search(r"(\d+) failed", test_string)
+        num_fail = 0 if results == None else int( results.group(1) )
+        results = re.search(r"(\d+) passed", test_string)
+        num_pass = 0 if results == None else int ( results.group(1) )
+        print(f"Total: {num_fail + num_pass}")
+        print(f"Passed: {num_pass}")
+        results = re.findall(r"\d+%", test_string)
+        print(f"Line Coverage: {results[-1]}%")
         sys.exit(0)
 
     # default test: check if the files exist
