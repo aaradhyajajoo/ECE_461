@@ -38,6 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var fs = require("fs");
 var axios_1 = require("axios");
+var exec = require('child_process').exec;
 // Global variables
 var license_compatibility; // done 
 var bus_factor; // Tanvi - done
@@ -55,6 +56,9 @@ var verbosity;
 var filename;
 var filename = String(process.env.LOG_FILE);
 var verbosity = Number(process.env.LOG_LEVEL);
+var to_sort = {};
+var global_url_count = 0;
+var i;
 function write_to_log_file() {
     if (verbosity == 0) {
         return;
@@ -214,9 +218,16 @@ function calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount
 }
 function write(license_compatibility, bus_factor, ramp_upTime, responsiveness, correctness, net_score) {
     // write to the console
-    write_to_log_file();
-    var line_to_print = "{\"URL\":\"" + repo_URL + "\", \"NET_SCORE\":" + net_score + ", \"RAMP_UP_SCORE\":" + ramp_upTime + ", \"CORRECTNESS_SCORE\":" + correctness + ", \"BUS_FACTOR_SCORE\":" + bus_factor + ", \"RESPONSIVE_MAINTAINER_SCORE\":" + responsiveness + ", \"LICENSE_SCORE\":" + license_compatibility + "}";
-    console.log(line_to_print);
+    write_to_log_file(); // Environment Variable
+    i += 1; // Updating counter for urls
+    to_sort[net_score] = [repo_URL, ramp_upTime, correctness, bus_factor, responsiveness, license_compatibility];
+    // var line_to_print = "{\"URL\":\"" + repo_URL + "\", \"NET_SCORE\":" + net_score + ", \"RAMP_UP_SCORE\":" + ramp_upTime + ", \"CORRECTNESS_SCORE\":" + correctness + ", \"BUS_FACTOR_SCORE\":" + bus_factor + ", \"RESPONSIVE_MAINTAINER_SCORE\":" + responsiveness + ", \"LICENSE_SCORE\":" + license_compatibility + "}"
+    if (i == global_url_count) {
+        // console.log(to_sort)
+        var Console = new console.Console(fs.createWriteStream("results.txt", { flags: 'w' }));
+        Console.log(to_sort);
+    }
+    // console.log(line_to_print);
 }
 // Main function
 function main() {
@@ -231,6 +242,8 @@ function main() {
     // Stack Overflow Citation 
     // https://stackoverflow.com/questions/30016773/javascript-filter-true-booleans
     arr_urls = arr_urls.filter(Boolean);
+    i = 0;
+    global_url_count = arr_urls.length;
     arr_urls.forEach(function (url) {
         // get the owner and repo name from the url
         var owner = url.split('/')[3];

@@ -66,8 +66,24 @@ def main(args, *kwargs):
     else:
         check_files_exists(args, *kwargs)
         ramp_Up()
-        os.system(f"tsc src/graph_api_call.ts {args[0]}")
+        # os.system(f"ts-node src/graph_api_call.ts {args[0]}")
+        os.system(f"tsc src/graph_api_call.ts")
         os.system(f"node src/graph_api_call.js {args[0]}")
+
+        # Printing Ordered List of URLs
+        with open('results.txt', 'r') as file:
+            results = eval(file.read())
+            sorted_results = dict(sorted(results.items(), key=lambda item: float(item[0]), reverse=True))
+            for key, value in sorted_results.items():
+                repo_URL = value[0]
+                net_score = key
+                ramp_upTime = value[1]
+                correctness = value[2]
+                bus_factor = value[3]
+                responsiveness = value[4]
+                license_compatibility = value[5]
+                print("{\"URL\":\"" + repo_URL + "\", \"NET_SCORE\":" + str(net_score) + ", \"RAMP_UP_SCORE\":" + str(ramp_upTime) + ", \"CORRECTNESS_SCORE\":" + str(correctness) + ", \"BUS_FACTOR_SCORE\":" + str(bus_factor) + ", \"RESPONSIVE_MAINTAINER_SCORE\":" + str(responsiveness) + ", \"LICENSE_SCORE\":" + str(license_compatibility) + "}")
+
         sys.exit(0)
 
 # check if the files with the input path exist
