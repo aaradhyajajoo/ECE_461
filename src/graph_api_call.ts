@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import axios from 'axios';
 const { exec } = require('child_process');
+const readline = require('readline')
 
 // Global variables
 var license_compatibility: number
@@ -22,31 +23,11 @@ var verbosity = Number(process.env.LOG_LEVEL);
 var to_sort: { [key: number]: any[] } = {};
 var global_url_count = 0;
 var i: number;
+var licenseArray:string[] = [];
+var count: number;
 
 //  get the github token from the environment variable
 var github_token = process.env.GITHUB_TOKEN
-
-
-// function to get the license name from the URL
-function get_license_name(owner: string, repo: string) {
-  try {
-    var repo_URL = "https://api.github.com/repos/" + owner + "/" + repo;
-    axios.get(repo_URL).then((response) => {
-      var license_url = response.data['license'];
-      if (license_url == null) {
-        licenseName = "None";
-      }
-      else {
-        licenseName = response.data['license']['name'];
-      }
-    })
-  }
-  catch (error) {
-    console.log(error);
-    console.log("There was a problem with the fetch operation with ", owner);
-  }
-  return licenseName;
-}
 
 // function that writes to the log file for verbosity
 export function write_to_log_file() {    //0 means silent  
@@ -146,10 +127,10 @@ async function getData_github(requestUrl: string, owner: string, repo: string, f
       forksCount = response.data.data.repository.forks.totalCount;         //store the number of forks
       watchersCount = response.data.data.repository.watchers.totalCount;   //store the number of watchers
       stargazerCount = response.data.data.repository.stargazerCount;       //store the number of stargazers
-      licenseName = String(get_license_name(owner, repo));
+      
 
       // call the function to calculate the scores
-      calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount, licenseName, net_score);
+      calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount,net_score);
     });
   } catch (error) {
     console.error("There was a problem with the fetch operation with ", requestUrl);  //throws an error if a bad URL was inputted 
@@ -177,13 +158,21 @@ async function getData_npmjs(requestUrl: string) {
   getData_github(request_url, owner, repo, 1);   //Get and store the respone from github API
 }
 
-function calculate_scores(issuesCount: number, forksCount: number, watchersCount: number, stargazerCount: number, licenseName: string, net_score: number) {
+function calculate_scores(issuesCount: number, forksCount: number, watchersCount: number, stargazerCount: number, net_score: number) {
   // check what license the repo has
   // console.log("License Name: " + licenseName);
-  if (licenseName.includes('MIT') || licenseName.includes('mit')) {
+
+  // calculate license compatibility:
+  licenseName = licenseArray[i]
+
+  if (licenseName.includes('MIT')){
     license_compatibility = 1;
   }
-  else {
+  
+  else if (licenseName.includes('Other')){
+    license_compatibility = 1;
+  }
+  else{
     license_compatibility = 0;
   }
 
@@ -235,6 +224,7 @@ function write(license_compatibility: number, bus_factor: number, ramp_upTime: n
 // Main function
 function main() {
 
+
   // get the arguments from the command line
   var args = process.argv;
 
@@ -246,10 +236,21 @@ function main() {
   const string_urls = fs.readFileSync(filename, 'utf-8');
   var arr_urls = string_urls.split(/\r?\n/);
 
+
+  // read license txt file
+  const rl = readline.createInterface({
+    input: fs.createReadStream('src/license.txt'),
+  });
+  
+  rl.on('line', (line:string) => {
+    licenseArray.push(line);
+  });
+  
   // Stack Overflow Citation 
   // https://stackoverflow.com/questions/30016773/javascript-filter-true-booleans
   arr_urls = arr_urls.filter(Boolean);
   i = 0;
+  count = 0;
   global_url_count = arr_urls.length
   arr_urls.forEach((url) => {
     // get the owner and repo name from the url

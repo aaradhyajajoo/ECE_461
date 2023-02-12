@@ -40,6 +40,7 @@ exports.write_to_log_file = void 0;
 var fs = require("fs");
 var axios_1 = require("axios");
 var exec = require('child_process').exec;
+var readline = require('readline');
 // Global variables
 var license_compatibility;
 var bus_factor;
@@ -60,28 +61,10 @@ var verbosity = Number(process.env.LOG_LEVEL);
 var to_sort = {};
 var global_url_count = 0;
 var i;
+var licenseArray = [];
+var count;
 //  get the github token from the environment variable
 var github_token = process.env.GITHUB_TOKEN;
-// function to get the license name from the URL
-function get_license_name(owner, repo) {
-    try {
-        var repo_URL = "https://api.github.com/repos/" + owner + "/" + repo;
-        axios_1["default"].get(repo_URL).then(function (response) {
-            var license_url = response.data['license'];
-            if (license_url == null) {
-                licenseName = "None";
-            }
-            else {
-                licenseName = response.data['license']['name'];
-            }
-        });
-    }
-    catch (error) {
-        console.log(error);
-        console.log("There was a problem with the fetch operation with ", owner);
-    }
-    return licenseName;
-}
 // function that writes to the log file for verbosity
 function write_to_log_file() {
     if (verbosity == 0) {
@@ -161,9 +144,8 @@ function getData_github(requestUrl, owner, repo, flag) {
                             forksCount = response.data.data.repository.forks.totalCount; //store the number of forks
                             watchersCount = response.data.data.repository.watchers.totalCount; //store the number of watchers
                             stargazerCount = response.data.data.repository.stargazerCount; //store the number of stargazers
-                            licenseName = String(get_license_name(owner, repo));
                             // call the function to calculate the scores
-                            calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount, licenseName, net_score);
+                            calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount, net_score);
                         })];
                 case 2:
                     _a.sent();
@@ -206,10 +188,15 @@ function getData_npmjs(requestUrl) {
         });
     });
 }
-function calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount, licenseName, net_score) {
+function calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount, net_score) {
     // check what license the repo has
     // console.log("License Name: " + licenseName);
-    if (licenseName.includes('MIT') || licenseName.includes('mit')) {
+    // calculate license compatibility:
+    licenseName = licenseArray[i];
+    if (licenseName.includes('MIT')) {
+        license_compatibility = 1;
+    }
+    else if (licenseName.includes('Other')) {
         license_compatibility = 1;
     }
     else {
@@ -260,10 +247,18 @@ function main() {
     // read the file
     var string_urls = fs.readFileSync(filename, 'utf-8');
     var arr_urls = string_urls.split(/\r?\n/);
+    // read license txt file
+    var rl = readline.createInterface({
+        input: fs.createReadStream('src/license.txt')
+    });
+    rl.on('line', function (line) {
+        licenseArray.push(line);
+    });
     // Stack Overflow Citation 
     // https://stackoverflow.com/questions/30016773/javascript-filter-true-booleans
     arr_urls = arr_urls.filter(Boolean);
     i = 0;
+    count = 0;
     global_url_count = arr_urls.length;
     arr_urls.forEach(function (url) {
         // get the owner and repo name from the url

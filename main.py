@@ -19,6 +19,7 @@ def license_name(file_name):
         "Authorization": "Bearer " + os.environ.get("GITHUB_TOKEN")
     }
 
+    open('src/license.txt','w').close()
     for url in urls:
         if "github.com" in url:
             # get data from api.github.com/repo/ using request
@@ -36,10 +37,9 @@ def license_name(file_name):
                 if (data['license'] == None):
                     license_name = "None"
                 else:
-                    print(data)
+                    # print(data)
                     license_name = data["license"]["name"]
-            with open('src/license.txt', 'w+') as f:
-                f.write(license_name)
+            
         else:
             repo = url.split("/")[4]
             request_url = "https://replicate.npmjs.com/" + repo
@@ -61,12 +61,18 @@ def license_name(file_name):
             if ("license" not in data.keys()):
                 license_name = "None"
             else:
-                if (data['license'c] == "None"):
+                if (data['license'] == "None"):
                     license_name = "None"
                 else:
                     license_name = data["license"]["name"]
-            with open('src/license.txt', 'w+') as f:
-                f.write(license_name)
+
+            # with open('src/license.txt', 'a+') as f:
+            #     f.write(license_name)
+            #     f.write('\n')
+        with open('src/license.txt', 'a+') as f:
+            f.write(license_name)
+            f.write('\n')
+        # print(license_name)
 
 
 def ramp_Up():
