@@ -22,11 +22,4 @@ jobs:
         ./run install
         ./run sample_url_file.txt
         
-        
-
-    # - name: Deploy
-    #   run: |
-    #     # deploy code here
-    #     echo "Deploying code with GITHUB_TOKEN: $GITHUB_TOKEN"
-    #     # replace the following line with the deployment commands for your environment
-    #     echo "Code deployed successfully!"
+  
