@@ -19,9 +19,8 @@ jobs:
     - name: Build Code
       run: |
         # build code here
-        python3 main.py "$@"
-        rm -rf Useless
-        exit $?
+        ./run install
+        
         
 
     # - name: Deploy
