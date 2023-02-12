@@ -63,34 +63,23 @@ var i;
 var github_token = process.env.GITHUB_TOKEN;
 // function to get the license name from the URL
 function get_license_name(owner, repo) {
-    return __awaiter(this, void 0, void 0, function () {
-        var repo_URL, error_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 2, , 3]);
-                    repo_URL = "https://api.github.com/repos/" + owner + "/" + repo;
-                    return [4 /*yield*/, axios_1["default"].get(repo_URL).then(function (response) {
-                            var license_url = response.data['license'];
-                            if (license_url == null) {
-                                licenseName = "None";
-                            }
-                            else {
-                                licenseName = response.data['license']['spdx_id'];
-                            }
-                        })];
-                case 1:
-                    _a.sent();
-                    return [3 /*break*/, 3];
-                case 2:
-                    error_1 = _a.sent();
-                    console.log(error_1);
-                    console.log("There was a problem with the fetch operation with ", owner);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/, licenseName];
+    try {
+        var repo_URL = "https://api.github.com/repos/" + owner + "/" + repo;
+        axios_1["default"].get(repo_URL).then(function (response) {
+            var license_url = response.data['license'];
+            if (license_url == null) {
+                licenseName = "None";
+            }
+            else {
+                licenseName = response.data['license']['name'];
             }
         });
-    });
+    }
+    catch (error) {
+        console.log(error);
+        console.log("There was a problem with the fetch operation with ", owner);
+    }
+    return licenseName;
 }
 // function that writes to the log file for verbosity
 function write_to_log_file() {
@@ -135,7 +124,7 @@ function ramp_upTime_calc() {
 // Function to request APIs from github GraphQL API
 function getData_github(requestUrl, owner, repo, flag) {
     return __awaiter(this, void 0, void 0, function () {
-        var query, prev_owner, prev_repo, error_2;
+        var query, prev_owner, prev_repo, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -177,9 +166,9 @@ function getData_github(requestUrl, owner, repo, flag) {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    error_2 = _a.sent();
+                    error_1 = _a.sent();
                     console.error("There was a problem with the fetch operation with ", requestUrl); //throws an error if a bad URL was inputted 
-                    console.error(error_2);
+                    console.error(error_1);
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/];
             }
@@ -216,7 +205,7 @@ function getData_npmjs(requestUrl) {
 }
 function calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount, licenseName, net_score) {
     // check what license the repo has
-    console.log("License Name: " + licenseName);
+    // console.log("License Name: " + licenseName);
     if (licenseName.includes('MIT')) {
         license_compatibility = 1;
     }

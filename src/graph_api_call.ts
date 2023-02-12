@@ -28,16 +28,16 @@ var github_token = process.env.GITHUB_TOKEN
 
 
 // function to get the license name from the URL
-async function get_license_name(owner: string, repo: string) {
+ function get_license_name(owner: string, repo: string) {
   try {
     var repo_URL = "https://api.github.com/repos/" + owner + "/" + repo;
-    await axios.get(repo_URL).then((response) => {
+     axios.get(repo_URL).then((response) => {
       var license_url = response.data['license'];
       if (license_url == null) {
         licenseName = "None";
       }
       else {
-        licenseName = response.data['license']['spdx_id'];
+        licenseName = response.data['license']['name'];
       }
     })
   }
@@ -121,7 +121,7 @@ async function getData_github(requestUrl: string, owner: string, repo: string, f
 
   // make the request to the github graphql api
   try {
-    await axios({
+     await axios({
       url: requestUrl,
       method: 'post',
       headers: {
@@ -178,7 +178,7 @@ async function getData_npmjs(requestUrl: string) {
 
 function calculate_scores(issuesCount: number, forksCount: number, watchersCount: number, stargazerCount: number, licenseName: string, net_score: number) {
   // check what license the repo has
-  console.log("License Name: " + licenseName);
+  // console.log("License Name: " + licenseName);
   if (licenseName.includes('MIT')) {
     license_compatibility = 1;
   }
