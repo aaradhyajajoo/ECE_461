@@ -1,7 +1,9 @@
 import * as fs from 'fs';
 import axios from 'axios';
+import { exit } from 'process';
 const { exec } = require('child_process');
 const readline = require('readline')
+
 
 // Global variables
 var license_compatibility: number
@@ -275,6 +277,18 @@ function main() {
       console.log(url);
     }
   });
+}
+
+if (process.env.LOG_FILE == null)
+{
+  console.log("Invalid Log File")
+  process.exit(1)
+}
+
+if (process.env.LOG_LEVEL == null)
+{
+  console.log("Invalid Log Level")
+  process.exit(1)
 }
 
 main(); // Main 

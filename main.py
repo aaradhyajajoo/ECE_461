@@ -15,6 +15,12 @@ def license_name(file_name):
 
     # get the license name
     import requests
+
+    if  os.environ.get("GITHUB_TOKEN") == None:
+        print("Could not find GITHUB_TOKEN")
+        sys.exit(1)
+
+
     headers = {
         "Authorization": "Bearer " + os.environ.get("GITHUB_TOKEN")
     }
@@ -141,6 +147,7 @@ def main(args, *kwargs):
 
     elif (args[0].strip() == "test"):
 
+
         # for non existant file test
         os.system('./run file_DNE > DNE_OUTPUT')
 
@@ -173,6 +180,12 @@ def main(args, *kwargs):
         print(f"Coverage: {results[-1]}")
         print(
             f'{num_pass}/{num_fail + num_pass} test cases passed. {results[-1]} line coverage achieved.')
+        
+        os.system('rm OUTPUT')
+        os.system('rm OUTPUT2')
+        os.system('rm OUTPUT3')
+        os.system('rm CONC')
+        os.system('rm DNE_OUTPUT')
         sys.exit(0)
 
     # default test: check if the files exist
@@ -183,6 +196,9 @@ def main(args, *kwargs):
         # os.system(f"ts-node src/graph_api_call.ts {args[0]}")
         os.system(f"tsc src/graph_api_call.ts")
         os.system(f"node src/graph_api_call.js {args[0]}")
+
+        if (not os.path.exists('results.txt')):
+            sys.exit(1)
 
         # Printing Ordered List of URLs
         with open('results.txt', 'r') as file:
@@ -200,6 +216,7 @@ def main(args, *kwargs):
                 print("{\"URL\":\"" + repo_URL + "\", \"NET_SCORE\":" + str(net_score) + ", \"RAMP_UP_SCORE\":" + str(ramp_upTime) + ", \"CORRECTNESS_SCORE\":" + str(correctness) +
                       ", \"BUS_FACTOR_SCORE\":" + str(bus_factor) + ", \"RESPONSIVE_MAINTAINER_SCORE\":" + str(responsiveness) + ", \"LICENSE_SCORE\":" + str(license_compatibility) + "}")
 
+        os.system('rm results.txt')
         sys.exit(0)
 
 # check if the files with the input path exist

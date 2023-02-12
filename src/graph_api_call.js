@@ -281,4 +281,12 @@ function main() {
         }
     });
 }
+if (process.env.LOG_FILE == null) {
+    console.log("Invalid Log File");
+    process.exit(1);
+}
+if (process.env.LOG_LEVEL == null) {
+    console.log("Invalid Log Level");
+    process.exit(1);
+}
 main(); // Main 
