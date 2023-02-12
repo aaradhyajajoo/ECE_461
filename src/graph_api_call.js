@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
+exports.write_to_log_file = void 0;
 var fs = require("fs");
 var axios_1 = require("axios");
 var exec = require('child_process').exec;
@@ -114,7 +115,9 @@ function write_to_log_file() {
         Console.log("\n");
         Console.log("\n");
     }
+    return 0;
 }
+exports.write_to_log_file = write_to_log_file;
 function ramp_upTime_calc() {
     // read from a file called rampedUp.txt
     var rampedUp = fs.readFileSync('src\/ramp_up.txt', 'utf-8');

@@ -49,7 +49,7 @@ function get_license_name(owner: string, repo: string) {
 }
 
 // function that writes to the log file for verbosity
-function write_to_log_file() {    //0 means silent  
+export function write_to_log_file() {    //0 means silent  
   if (verbosity == 0) {
     return;
   }
@@ -81,6 +81,7 @@ function write_to_log_file() {    //0 means silent
     Console.log("\n")
     Console.log("\n")
   }
+  return 0;
 }
 
 function ramp_upTime_calc() {

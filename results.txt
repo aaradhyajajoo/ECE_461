@@ -1,7 +1,6 @@
 {
   '0.58': [ 'https://github.com/nullivex/nodist', 1, 1, 0, 0.69, 0 ],
   '0.64': [ 'https://github.com/cloudinary/cloudinary_npm', 1, 1, 0, 0.85, 0 ],
-  '0.62': [ 'https://github.com/lodash/lodash', 1, 1, 0, 0.79, 0 ],
-  '0.52': [ 'https://npmsjs.com/package/express', 1, 1, 0, 0.54, 0 ],
-  '0.83': [ 'https://npmsjs.com/package/browserify', 1, 1, 0.09, 0.8, 1 ]
+  '0.62': [ 'https://npmsjs.com/package/browserify', 1, 1, 0, 0.8, 0 ],
+  '0.52': [ 'https://npmsjs.com/package/express', 1, 1, 0, 0.54, 0 ]
 }
