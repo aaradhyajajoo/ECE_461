@@ -70,7 +70,9 @@ def license_name(file_name):
             #     f.write(license_name)
             #     f.write('\n')
         else:
-            print("Invalid URL")
+            print(f"Invalid URL:")
+            print(url)
+            sys.exit(1)           
 
         with open('src/license.txt', 'a+') as f:
             f.write(license_name)
@@ -120,7 +122,8 @@ def install():
     os.system("npm --silent --no-progress install ts-node-dev")
     os.system("npm --silent --no-progress install --save-dev jest")
     os.system("pip install -q -r requirements.txt > /dev/null 2>&1")
-    os.system("ts-node src/install.ts > /dev/null 2>&1")
+    # os.system("ts-node src/install.ts > /dev/null 2>&1")
+    os.system("tsc src/install.ts")
     os.system("node src/install.js")
     sys.exit(0)
 
