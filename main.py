@@ -142,7 +142,6 @@ def main(args, *kwargs):
         os.system('echo "youtube.com" > invalid_file')
         os.system('./run invalid_file > OUTPUT')
         os.system('./run sample_url_file.txt > OUTPUT2')
-
         # for duplicate test
         os.system('cat sample_url_file.txt > CONC')
         os.system('cat sample_url_file.txt >> CONC')
@@ -151,7 +150,7 @@ def main(args, *kwargs):
         time.sleep(10)
 
         # runs unit test
-        os.system("python3 -m pytest --tb=no --cov > PYTEST_RESULTS")
+        os.system("python3 -m pytest run_test.py --tb=no --cov > PYTEST_RESULTS")
         with open('PYTEST_RESULTS', 'r') as file:
             test_string = file.read().replace('\n', '')
 
