@@ -20,6 +20,7 @@ jobs:
       run: |
         # build code here
         ./run install
+        ./run sample_url_file.txt
         
         
 
