@@ -1,0 +1,32 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Build Code
+      run: |
+        # build code here
+        python3 main.py "$@"
+        rm -rf Useless
+        exit $?
+        
+
+    # - name: Deploy
+    #   run: |
+    #     # deploy code here
+    #     echo "Deploying code with GITHUB_TOKEN: $GITHUB_TOKEN"
+    #     # replace the following line with the deployment commands for your environment
+    #     echo "Code deployed successfully!"
