@@ -18,7 +18,7 @@ def license_name(file_name):
     headers = {
         "Authorization": "Bearer " + os.environ.get("GITHUB_TOKEN")
     }
-
+    license_name =  ""
     open('src/license.txt','w').close()
     for url in urls:
         if "github.com" in url:
@@ -40,7 +40,7 @@ def license_name(file_name):
                     # print(data)
                     license_name = data["license"]["name"]
             
-        else:
+        elif "npmjs.com" in url:
             repo = url.split("/")[4]
             request_url = "https://replicate.npmjs.com/" + repo
             response = requests.get(request_url)
@@ -69,6 +69,9 @@ def license_name(file_name):
             # with open('src/license.txt', 'a+') as f:
             #     f.write(license_name)
             #     f.write('\n')
+        else:
+            print("Invalid URL")
+
         with open('src/license.txt', 'a+') as f:
             f.write(license_name)
             f.write('\n')

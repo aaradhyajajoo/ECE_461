@@ -2,3 +2,4 @@ GitPython
 regex
 pytest
 requests
+pytest-cov
