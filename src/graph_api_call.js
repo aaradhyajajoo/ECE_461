@@ -206,7 +206,7 @@ function getData_npmjs(requestUrl) {
 function calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount, licenseName, net_score) {
     // check what license the repo has
     // console.log("License Name: " + licenseName);
-    if (licenseName.includes('MIT')) {
+    if (licenseName.includes('MIT') || licenseName.includes('mit')) {
         license_compatibility = 1;
     }
     else {
