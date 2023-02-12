@@ -219,7 +219,7 @@ function calculate_scores(issuesCount, forksCount, watchersCount, stargazerCount
     }
     // calculate the ramp_upTime
     ramp_upTime = Number(ramp_upTime_calc()); //Ramp-up formula
-    correctness = 1;
+    correctness = Number(((Number(responsiveness) + license_compatibility) / 2).toFixed(2));
     // calculate the net_score time
     var net_score = Number(((0.4 * Number(responsiveness) + 0.1 * bus_factor + 0.2 * license_compatibility + 0.1 * ramp_upTime + 0.2 * correctness)).toFixed(2)); //NET score formula
     write(license_compatibility, bus_factor, ramp_upTime, Number(responsiveness), correctness, net_score);
@@ -229,7 +229,9 @@ function write(license_compatibility, bus_factor, ramp_upTime, responsiveness, c
     write_to_log_file(); // Environment Variable
     i += 1; // Updating counter for urls
     to_sort[net_score] = [repo_URL, ramp_upTime, correctness, bus_factor, responsiveness, license_compatibility];
-    // var line_to_print = "{\"URL\":\"" + repo_URL + "\", \"NET_SCORE\":" + net_score + ", \"RAMP_UP_SCORE\":" + ramp_upTime + ", \"CORRECTNESS_SCORE\":" + correctness + ", \"BUS_FACTOR_SCORE\":" + bus_factor + ", \"RESPONSIVE_MAINTAINER_SCORE\":" + responsiveness + ", \"LICENSE_SCORE\":" + license_compatibility + "}"
+    // var line_to_print = "{\"URL\":\"" + repo_URL + "\", \"NET_SCORE\":" + net_score + ", \"RAMP_UP_SCORE\":" + ramp_upTime + 
+    // ", \"CORRECTNESS_SCORE\":" + correctness + ", \"BUS_FACTOR_SCORE\":" + bus_factor + ", \"RESPONSIVE_MAINTAINER_SCORE\":" 
+    // + responsiveness + ", \"LICENSE_SCORE\":" + license_compatibility + "}"
     if (i == global_url_count) {
         // console.log(to_sort)
         var Console = new console.Console(fs.createWriteStream("results.txt", { flags: 'w' }));

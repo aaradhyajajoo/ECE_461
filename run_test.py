@@ -13,7 +13,7 @@ def test_file_DNE():
     assert(len(lines) == 1)
     assert(lines[0]== "File file_DNE does not exist")
     
-    pass
+    
 
 # check if program appropriatley handles cases where user enters a URL that is not valid
 def test_invalid_URL():
